@@ -1,21 +1,11 @@
 <template lang="pug">
   v-app
-    HelloWorld
+    router-view 
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import { Vue, Component } from 'vue-property-decorator'
 
-export default Vue.extend({
-  name: 'App',
-
-  components: {
-    HelloWorld,
-  },
-
-  data: () => ({
-    //
-  }),
-});
+@Component
+export default class App extends Vue {}
 </script>
