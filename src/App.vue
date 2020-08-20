@@ -1,13 +1,13 @@
 <template lang="pug">
   v-app
     router-view
-    Notification
+    NotificationPopup
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import Notification from "@/components/Notification.vue"
+import NotificationPopup from "@/components/NotificationPopup.vue"
 
-@Component({components: {Notification}})
+@Component({ components: { NotificationPopup } })
 export default class App extends Vue {}
 </script>

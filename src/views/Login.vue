@@ -6,20 +6,23 @@
         v-card-text
           v-text-field(v-model="loginInfo.email" label="e-mail")
           v-text-field(v-model="loginInfo.password" label="password")
-        v-card-action
+        v-card-actions
           v-btn(@click="login") emit
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
+import { authStore, notificationStore } from "@/store/index"
 
-@Component
+@Component({})
 export default class Login extends Vue {
   loginInfo: {email: string; password: string } = { email: "", password: "" }
 
   login() {
-    this.$store.dispatch("login", this.loginInfo)
+    authStore.login(this.loginInfo)
     .then(() => this.letIn())
+    .then(() => notificationStore.info("Successfully login"))
+    .catch(() => notificationStore.error("Failed to login"))
   }
 
   letIn(){
