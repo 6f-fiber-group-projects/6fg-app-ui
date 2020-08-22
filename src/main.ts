@@ -6,7 +6,9 @@ import vuetify from './plugins/vuetify'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import axios from "axios"
 
-axios.defaults.baseURL = "http://localhost:8000/"
+axios.defaults.baseURL = process.env.NODE_ENV === "production"
+  ? "https://aqueous-hollows-30635.herokuapp.com/"
+  : "http://localhost:8000/"
 
 Vue.config.productionTip = false
 
