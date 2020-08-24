@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
-import store from "../store/index"
+import { authStore } from "../store/index"
 
 Vue.use(VueRouter)
 
@@ -14,6 +14,10 @@ const routes: Array<RouteConfig> = [
     path: '/login',
     name: 'Login',
     component: () => import("../views/Login.vue")
+  },
+  {
+    path: '/logout',
+    name: 'Logout',
   }
 ]
 
@@ -24,10 +28,14 @@ const router = new VueRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  if (to.name != "Login" && !store.getters.isLogin) {
+  if (to.name == "Logout") {
+    authStore.logout()
+    return next({path: "/login"})
+  }
+  if (to.name != "Login" && !authStore.isLogin) {
     return next({path: "/login", query: {redirect: to.fullPath}})
   }
-  if (to.name == "Login" && store.getters.isLogin) {
+  if (to.name == "Login" && authStore.isLogin) {
     return next({path: "/"})
   }
   next()

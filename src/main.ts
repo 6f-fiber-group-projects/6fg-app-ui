@@ -9,6 +9,7 @@ import axios from "axios"
 axios.defaults.baseURL = process.env.NODE_ENV === "production"
   ? "https://aqueous-hollows-30635.herokuapp.com/"
   : "http://localhost:8000/"
+axios.defaults.withCredentials = true
 
 Vue.config.productionTip = false
 

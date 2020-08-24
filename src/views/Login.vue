@@ -7,7 +7,7 @@
           v-text-field(v-model="loginInfo.email" label="e-mail")
           v-text-field(v-model="loginInfo.password" label="password")
         v-card-actions
-          v-btn(@click="login") emit
+          v-btn(@click="login") login
 </template>
 
 <script lang="ts">
