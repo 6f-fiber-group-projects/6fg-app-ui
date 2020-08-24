@@ -26,7 +26,11 @@ export default class Login extends Vue {
   }
 
   letIn(){
-    this.$router.push(this.$route.query.redirect[0] || "/")
+    this.$router.push(
+      this.$route.query.redirect
+        ? this.$route.query.redirect[0] || "/"
+        : "/"
+    )
   }
 }
 </script>
