@@ -29,7 +29,7 @@ export default class AuthModule extends VuexModule {
 
   @Action({ rawError: true, commit: "setUserInfo" })
   async logout() {
-    await axios.post("auth/logout")
+    await axios.get("auth/logout")
     return null
   }
 }

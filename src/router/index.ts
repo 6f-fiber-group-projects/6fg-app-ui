@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
-import { authStore } from "../store/index"
+import { authStore, notificationStore } from "../store/index"
 
 Vue.use(VueRouter)
 
@@ -29,7 +29,8 @@ const router = new VueRouter({
 
 router.beforeEach(async (to, from, next) => {
   if (to.name == "Logout") {
-    authStore.logout()
+    await authStore.logout()
+    .then(() => notificationStore.info("Successfully logout"))
     return next({path: "/login"})
   }
   if (to.name != "Login" && !authStore.isLogin) {
