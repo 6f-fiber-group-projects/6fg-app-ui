@@ -7,7 +7,7 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import axios from "axios"
 
 axios.defaults.baseURL = process.env.NODE_ENV === "production"
-  ? "https://aqueous-hollows-30635.herokuapp.com/"
+  ? "https://www.fgapi.work/"//"https://aqueous-hollows-30635.herokuapp.com/"
   : "http://localhost:8000/"
 axios.defaults.withCredentials = true
 
