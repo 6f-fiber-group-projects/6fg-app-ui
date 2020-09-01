@@ -1,6 +1,7 @@
 import { Module, VuexModule, Mutation, Action, } from "vuex-module-decorators"
 import { UserInfo } from "../models/index"
 import store from "@/store/index"
+import { notificationStore } from "@/store/index"
 import axios from "axios"
 
 @Module({ store, name: 'auth' })
@@ -25,11 +26,17 @@ export default class AuthModule extends VuexModule {
   async login(params: {email: string; password: string}) {  
     await axios.post("auth", params)
     .then(d => this.context.commit("setUserInfo", new UserInfo(d.data.message)))
+    .then(() => notificationStore.info("Successfully login"))
+    .catch(() => {
+      notificationStore.error("Failed to login")
+      return Promise.reject("Failed to login")
+    })
   }
 
   @Action({ rawError: true, commit: "setUserInfo" })
   async logout() {
     await axios.get("auth/logout")
+    .then(() => notificationStore.info("Successfully logout"))
     return null
   }
 }

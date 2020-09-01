@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
-import { authStore, notificationStore } from "../store/index"
+import { authStore } from "../store/index"
 
 Vue.use(VueRouter)
 
@@ -11,14 +11,15 @@ const routes: Array<RouteConfig> = [
     component: () => import("../views/EquipmentList.vue")
   },
   {
+    path: '/equipment/:equipId',
+    name: 'Equipment',
+    component: () => import("../views/Equipment.vue")
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import("../views/Login.vue")
   },
-  {
-    path: '/logout',
-    name: 'Logout',
-  }
 ]
 
 const router = new VueRouter({
@@ -28,11 +29,6 @@ const router = new VueRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  if (to.name == "Logout") {
-    await authStore.logout()
-    .then(() => notificationStore.info("Successfully logout"))
-    return next({path: "/login"})
-  }
   if (to.name != "Login" && !authStore.isLogin) {
     return next({path: "/login", query: {redirect: to.fullPath}})
   }

@@ -1,4 +1,8 @@
-import { User } from "./types"
+import { 
+  User,
+  Equipment,
+  EquipmentReservation
+} from "./types"
 
 const AUTH_ID_TO_NAME: {[n: number]: string} = {
   1: "admin",
@@ -28,5 +32,38 @@ export class Notification {
 
   constructor(obj: Notification){
     Object.assign(this, obj)
+  }
+}
+
+export class EquipmentInfo {
+  id: number
+  name: string
+  status: number
+  imgsrc: string
+
+  constructor(obj: Equipment){
+    this.id = obj.Id
+    this.name = obj.Name
+    this.status = obj.Status
+    this.imgsrc = obj.Url
+  }
+} 
+
+export class EquipmentRsvnInfo {
+  id: number
+  userId: number
+  equipId: number
+  status: number
+  start: Date
+  end: Date
+
+
+  constructor(obj: EquipmentReservation){
+    this.id = obj.Id
+    this.userId = obj.UserId
+    this.equipId = obj.EquipId
+    this.status = obj.Status
+    this.start = new Date(obj.StartDate)
+    this.end = new Date(obj.EndDate)
   }
 } 
