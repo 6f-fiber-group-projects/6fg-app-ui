@@ -83,10 +83,12 @@ export default class Calendar extends Vue {
 
   cancel() {
     this.date = this.formatDate(this.originalStartDatetime)
+    this.edit = false
     this.$emit("close")
   }
 
   emit() {
+    this.edit = false
     console.log("emit")
   }
 

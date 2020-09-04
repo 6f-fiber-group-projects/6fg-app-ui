@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { EquipmentRsvnInfo, UserInfo } from '../models'
 import { CalendarEvent } from '../models/types'
 import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
@@ -51,13 +51,20 @@ export default class Calendar extends Vue {
   private reservations!: EquipmentRsvnInfo[]
 
   async mounted() {
-    this.users = await userStore.fetchUsers()
-    this.calendar = this.$refs.calendar
-    this.initEvents()
+    this.users = userStore.getUsers.length === 0 
+      ? await userStore.fetchUsers()
+      : userStore.getUsers
+    this.calendar = this.$refs.calendar 
+    this.initReservation()
   }
 
-  initEvents() {
+  @Watch("reservations")
+  onChangeRsvn(){
     this.events = _.map(this.reservations, r => this.setEvent(r))
+  }
+
+  initReservation() {
+    this.onChangeRsvn()
   }
 
   setEvent(r: EquipmentRsvnInfo): CalendarEvent {

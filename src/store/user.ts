@@ -12,7 +12,8 @@ export default class UserModule extends VuexModule {
   }
 
   @Mutation
-  setUserInfo(users: UserInfo[]) {
+  setUsers(users: UserInfo[]) {
+    console.log("setUsers", users)
     this.users = users
   }
 

@@ -11,8 +11,8 @@ import EquipmentCard from "@/components/EquipmentCard.vue"
 
 @Component({ components: { EquipmentCard } })
 export default class EquipmentList extends Vue {
-  mounted() {
-    equipStore.fetchEquipsInfo()
+  async mounted() {
+    if(equipStore.getEquipsInfo.length === 0) await equipStore.fetchEquipsInfo()
   }
 
   get equipsInfo() {
