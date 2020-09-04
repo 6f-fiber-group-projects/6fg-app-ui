@@ -4,11 +4,7 @@ import {
   EquipmentReservation
 } from "./types"
 
-const AUTH_ID_TO_NAME: {[n: number]: string} = {
-  1: "admin",
-  2: "editor",
-  3: "viewer"
-}
+import { AUTH_ID_TO_NAME } from "@/plugins/utils"
 
 export class UserInfo {
   id: number

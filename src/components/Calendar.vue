@@ -17,24 +17,60 @@
           v-list
             template(v-for="(type, idx) in availableTypes" key=idx)
               v-list-item(@click="setType(type)")
-                v-list-item-title {{ capitalize(type) }}
+                v-list-item-title {{ cap(type) }}
     v-sheet
-      v-calendar(v-model="focus" :type="type" color="primary" ref="calendar")
+      v-calendar(v-model="focus" :type="type" :events="events" 
+          @click:event="showEvent" color="primary" ref="calendar")
+
+    v-dialog(v-model="showDialog" persistent max-width="600px")
+      CalendarDetailCard(:event="selectedEvent.event" @close="showDialog=false")
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
+import { EquipmentRsvnInfo, UserInfo } from '../models'
+import { CalendarEvent } from '../models/types'
+import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
+import { userStore } from "@/store"
+import { capitalize } from "@/plugins/utils"
+import _ from "lodash"
 
-@Component({})
-export default class Calendor extends Vue {
+@Component({ components: { CalendarDetailCard } })
+export default class Calendar extends Vue {
   private baseBtnColor = "grey darken-2"
   private calendar: any = ""
   private focus = ""
   private type = "month"
+  private users: any
+  private events: Array<CalendarEvent> = []
+  private showDialog = false
+  private selectedEvent: any = {}
   private readonly availableTypes = ["month", "week", "day"]
 
-  mounted() {
+  @Prop({type: Array, default: []})
+  private reservations!: EquipmentRsvnInfo[]
+
+  async mounted() {
+    this.users = await userStore.fetchUsers()
     this.calendar = this.$refs.calendar
+    this.initEvents()
+  }
+
+  initEvents() {
+    this.events = _.map(this.reservations, r => this.setEvent(r))
+  }
+
+  setEvent(r: EquipmentRsvnInfo): CalendarEvent {
+    const user = this.users.filter((u: UserInfo) => u.id === r.userId)[0]
+    const start = new Date(r.start)
+    const end = new Date(r.end)
+    return {
+      name: user.name,
+      user,
+      start,
+      end,
+      color: "primary",
+    }
   }
 
   setToday () {
@@ -50,11 +86,16 @@ export default class Calendor extends Vue {
   }
 
   setType(type: string) {
-    this.type =type
+    this.type = type
   }
 
-  capitalize(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1)
+  showEvent(e: any) {
+    this.selectedEvent = e
+    this.showDialog = true
+  }
+
+  cap(str: string) {
+    return capitalize(str)
   }
 
 }

@@ -1,3 +1,5 @@
+import { UserInfo } from "@/models"
+
 export type User = {
   id: number
   auth_id: number
@@ -20,4 +22,12 @@ export type EquipmentReservation = {
   Status: number
   StartDate: string
   EndDate: string
+}
+
+export type CalendarEvent = {
+  name: string;
+  start: Date;
+  end: Date;
+  color: string;
+  user: UserInfo;
 }
