@@ -1,22 +1,23 @@
 <template lang="pug">
   v-card
     v-toolbar.mb-3(:color="color" dark dense elevation=0)
-      v-toolbar-title {{ event.name }}
+      v-toolbar-title {{ cardTile }}
       v-spacer
       v-btn(v-if="showEditBtn" text fab small @click="editClicked")
         v-icon(small) edit
     v-card-text
-      v-row
+      v-row(v-for="(item, key, idx) in dateInfos" :key="idx")
+        v-col.py-0(cols=12) {{ item.label }}
         v-col(cols=6)
-          v-menu(v-model="dateMenu" ref="date" :close-on-content-click="false" 
+          v-menu(v-model="item.spacer" ref="date" :close-on-content-click="false" 
               transition="scale-transition" offset-y :disabled="!editting")
             template(v-slot:activator="{ on, attrs }")
-              v-text-field(v-model="formattedDate" label="日付" prepend-icon="event" v-on="on" v-bind="attrs" readonly :disabled="!editting")
-            v-date-picker(v-model="date" no-title scrollable)
+              v-text-field(v-model="item.date" label="日付" prepend-icon="event" v-on="on" v-bind="attrs" readonly :disabled="!editting")
+            v-date-picker(v-model="item.date" no-title scrollable)
         v-col(cols=3)
-          v-select(v-model="hour" :items="hours" :disabled="!editting" label="時刻（時）")
+          v-select(v-model="item.hour" :items="hours" :disabled="!editting" label="時刻（時）")
         v-col(cols=3)
-          v-select(v-model="minute" :items="minutes" :disabled="!editting" label="時刻（分）")
+          v-select(v-model="item.minute" :items="minutes" :disabled="!editting" label="時刻（分）")
     v-card-actions
       v-spacer
       v-btn(@click="cancel" depressed color="grey darken-2" dark) cancel
@@ -24,21 +25,25 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { CalendarEvent } from '../models/types'
 import { isLoginUser, isAdmin } from "@/plugins/utils"
+import _ from "lodash"
+import { authStore } from '../store'
+
+type DateInfo = {
+  date: string;
+  hour: number;
+  minute: number;
+  showMenu: boolean;
+  label: string;
+}
 
 @Component({})
 export default class Calendar extends Vue {
   private edit = false
-  private editted = {start: Date, end: Date}
-  private start = ""
-  private end = ""
-  private date = ""
-  private originalStartDatetime!: Date
-  private dateMenu = false
-  private hour = 0
-  private minute = 0
+  private dateInfos: {[s: string]: DateInfo | null} = {start: null, end: null} // https://vuejs.org/2016/02/06/common-gotchas/#Why-isn%E2%80%99t-the-DOM-updating
+  private originalDateInfos: {[s: string]: Date} = {}
 
   @Prop({type: Object, default: () => ({})})
   event!: CalendarEvent
@@ -46,9 +51,13 @@ export default class Calendar extends Vue {
   @Prop({type: Boolean, default: false})
   isNew!: boolean
 
-  mounted() {
-    this.originalStartDatetime = this.event ? this.event.start : new Date()
-    this.date = this.formatDate(this.originalStartDatetime)
+  beforeMount() {
+    this.initDateInfo()
+  }
+
+  @Watch("event")
+  onEventChange(){
+    this.initDateInfo()
   }
 
   get color() {
@@ -65,10 +74,6 @@ export default class Calendar extends Vue {
     return !this.isNew && this.isEditable()
   }
 
-  get formattedDate() {
-    return this.date
-  }
-
   get hours() {
     return Array.from(Array(24), (v, k) => k)
   }
@@ -81,14 +86,41 @@ export default class Calendar extends Vue {
     return this.isNew ? "book" : "edit"
   }
 
+  get cardTile() {
+    return this.isNew ? authStore.getUserInfo?.name : this.event.name
+  }
+
+  initDateInfo() {
+    this.originalDateInfos = {
+      start: Object.keys(this.event).length !== 0 ? this.event.start: new Date(),
+      end: Object.keys(this.event).length !== 0 ? this.event.end: new Date()
+    }
+    this.resetDate()
+    console.log(this.dateInfos)
+  }
+
+  resetDate(){
+    _.forEach(this.originalDateInfos, (val, key) => {
+      const dateTime = this.splitDatetime(val)
+      this.dateInfos[key] = {
+        date: dateTime.year + "-" + dateTime.month + "-" + dateTime.day,
+        hour: parseInt(dateTime.hour),
+        minute: parseInt(dateTime.minute),
+        showMenu: false,
+        label: key === "start" ? "開始" : "終了"
+      }
+    })
+  }
+
   cancel() {
-    this.date = this.formatDate(this.originalStartDatetime)
     this.edit = false
+    this.resetDate()
     this.$emit("close")
   }
 
   emit() {
     this.edit = false
+    if(this.isNew) this.$emit("created", _.mapValues(this.dateInfos, this.formatDate))
     console.log("emit")
   }
 
@@ -100,8 +132,17 @@ export default class Calendar extends Vue {
     return isLoginUser(this.event?.user.id) || isAdmin()
   }
 
-  formatDate(date: Date) {
-    return date.toISOString().substr(0, 10)
+  formatDate(d: DateInfo) {
+    return new Date(`${d.date}T${d.hour}:${d.minute}:00+0900`)
+  }
+
+  splitDatetime(dateTime: Date) {
+    const year   = dateTime.getFullYear().toString()
+    const month  = (dateTime.getMonth() + 1).toString().padStart(2, "0")
+    const day    = dateTime.getDate().toString().padStart(2, "0")
+    const hour   = dateTime.getHours().toString().padStart(2, "0")
+    const minute = dateTime.getMinutes().toString().padStart(2, "0")
+    return {year, month, day, hour, minute}
   }
 }
 </script>

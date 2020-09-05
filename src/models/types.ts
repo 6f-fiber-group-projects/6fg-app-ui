@@ -24,6 +24,13 @@ export type EquipmentReservation = {
   EndDate: string
 }
 
+export type ReserveEquipment = {
+  userId: number
+  equipId: number
+  startDate: Date
+  endDate: Date
+}
+
 export type CalendarEvent = {
   name: string;
   start: Date;

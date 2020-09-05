@@ -1,6 +1,8 @@
 <template lang="pug">
   .calendar
     v-sheet
+      v-btn(color="primary" @click="book") Book
+    v-sheet
       v-toolbar(flat)
         v-btn.mr-4(outlined :color="baseBtnColor" @click="setToday") Today
         v-btn(fab text small :color="baseBtnColor" @click="prev")
@@ -23,16 +25,18 @@
           @click:event="showEvent" color="primary" ref="calendar")
 
     v-dialog(v-model="showDialog" persistent max-width="600px")
-      CalendarDetailCard(:event="selectedEvent.event" @close="showDialog=false")
+      CalendarDetailCard(:event="selectedEvent" :isNew="isNewEvent" @close="showDialog=false"
+          @created="createRsvn")
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { EquipmentRsvnInfo, UserInfo } from '../models'
 import { CalendarEvent } from '../models/types'
-import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
-import { userStore } from "@/store"
+import { userStore, authStore } from "@/store"
 import { capitalize } from "@/plugins/utils"
+import api from "@/api"
+import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
 import _ from "lodash"
 
 @Component({ components: { CalendarDetailCard } })
@@ -44,11 +48,14 @@ export default class Calendar extends Vue {
   private users: any
   private events: Array<CalendarEvent> = []
   private showDialog = false
-  private selectedEvent: any = {}
+  private selectedEventInfo: any = {}
   private readonly availableTypes = ["month", "week", "day"]
 
   @Prop({type: Array, default: []})
   private reservations!: EquipmentRsvnInfo[]
+
+  @Prop({type: Number})
+  private equipId!: number
 
   async mounted() {
     this.users = userStore.getUsers.length === 0 
@@ -61,6 +68,14 @@ export default class Calendar extends Vue {
   @Watch("reservations")
   onChangeRsvn(){
     this.events = _.map(this.reservations, r => this.setEvent(r))
+  }
+
+  get selectedEvent() {
+    return this.selectedEventInfo ? this.selectedEventInfo.event : {}
+  }
+
+  get isNewEvent() {
+    return !this.selectedEventInfo?.event || false
   }
 
   initReservation() {
@@ -97,8 +112,25 @@ export default class Calendar extends Vue {
   }
 
   showEvent(e: any) {
-    this.selectedEvent = e
+    this.selectedEventInfo = e
     this.showDialog = true
+  }
+
+  book() {
+    this.selectedEventInfo = null
+    this.showDialog = true
+  }
+
+  async createRsvn(bookDates: {start: Date; end: Date}) {
+    if (!authStore.getUserInfo) return
+    await api.createRsvn({
+      userId: authStore.getUserInfo.id,
+      equipId: this.equipId,
+      startDate: bookDates.start,
+      endDate: bookDates.end
+    })
+    .then(() => this.$emit("created"))
+    this.showDialog = false
   }
 
   cap(str: string) {
