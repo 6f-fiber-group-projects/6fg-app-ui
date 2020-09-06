@@ -33,10 +33,11 @@ export default class AuthModule extends VuexModule {
     })
   }
 
-  @Action({ rawError: true, commit: "setUserInfo" })
+  @Action({ rawError: true })
   async logout() {
     await axios.get("auth/logout")
     .then(() => notificationStore.info("Successfully logout"))
-    return null
+    .catch((e) => console.log(e))
+    .finally(() => this.context.commit("setUserInfo", null))
   }
 }

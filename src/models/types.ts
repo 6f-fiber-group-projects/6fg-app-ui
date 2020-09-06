@@ -25,6 +25,7 @@ export type EquipmentReservation = {
 }
 
 export type ReserveEquipment = {
+  id?: number,
   userId: number
   equipId: number
   startDate: Date
@@ -32,6 +33,7 @@ export type ReserveEquipment = {
 }
 
 export type CalendarEvent = {
+  rsvnId: number;
   name: string;
   start: Date;
   end: Date;

@@ -26,7 +26,7 @@
 
     v-dialog(v-model="showDialog" persistent max-width="600px")
       CalendarDetailCard(:event="selectedEvent" :isNew="isNewEvent" @close="showDialog=false"
-          @created="createRsvn")
+          @created="createRsvn" @editted="updateRsvn" @deleted="deleteRsvn")
 </template>
 
 <script lang="ts">
@@ -38,6 +38,13 @@ import { capitalize } from "@/plugins/utils"
 import api from "@/api"
 import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
 import _ from "lodash"
+
+type RsvnInfo = {
+  id?: number;
+  userId?: number;
+  start: Date;
+  end: Date;
+}
 
 @Component({ components: { CalendarDetailCard } })
 export default class Calendar extends Vue {
@@ -87,6 +94,7 @@ export default class Calendar extends Vue {
     const start = new Date(r.start)
     const end = new Date(r.end)
     return {
+      rsvnId: r.id,
       name: user.name,
       user,
       start,
@@ -121,15 +129,34 @@ export default class Calendar extends Vue {
     this.showDialog = true
   }
 
-  async createRsvn(bookDates: {start: Date; end: Date}) {
+  async createRsvn(rsvnInfo: RsvnInfo) {
     if (!authStore.getUserInfo) return
     await api.createRsvn({
       userId: authStore.getUserInfo.id,
       equipId: this.equipId,
-      startDate: bookDates.start,
-      endDate: bookDates.end
+      startDate: rsvnInfo.start,
+      endDate: rsvnInfo.end
     })
-    .then(() => this.$emit("created"))
+    .then(() => this.$emit("updated"))
+    this.showDialog = false
+  }
+
+  async updateRsvn(rsvnInfo: RsvnInfo) {
+    if(!rsvnInfo.userId || !rsvnInfo.id) return
+    await api.updateRsvn({
+      id: rsvnInfo.id,
+      userId: rsvnInfo.userId,
+      equipId: this.equipId,
+      startDate: rsvnInfo.start,
+      endDate: rsvnInfo.end
+    })
+    .then(() => this.$emit("updated"))
+    this.showDialog = false
+  }
+
+  async deleteRsvn(rsvnId: number) {
+    await api.deleteRsvn({id: rsvnId})
+    .then(() => this.$emit("updated"))
     this.showDialog = false
   }
 

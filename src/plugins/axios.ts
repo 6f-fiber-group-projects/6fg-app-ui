@@ -8,7 +8,7 @@ const responseErrorHandler = (err: any) => {
 }
 
 axios.defaults.baseURL = process.env.NODE_ENV === "production"
-  ? "https://www.fgapi.work/"//"https://aqueous-hollows-30635.herokuapp.com/"
+  ? "https://aqueous-hollows-30635.herokuapp.com/"
   : "http://localhost:8000/"
 axios.defaults.withCredentials = true
 axios.interceptors.response.use(responseHandler, responseErrorHandler)

@@ -16,7 +16,7 @@ export default class EquipmentCard extends Vue {
   private equipInfo!: EquipmentInfo
 
   get imgSrc() {
-    return this.equipInfo.imgsrc || "https://cdn.vuetifyjs.com/images/cards/docks.jpg"
+    return this.equipInfo.imgsrc || "https://cdn.vuetifyjs.com/images/parallax/material.jpg"
   }
 
   get color() {

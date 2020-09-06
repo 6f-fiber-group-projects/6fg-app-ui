@@ -6,7 +6,7 @@
           span.text-h3.mr-5 {{ equip.name }}
           v-chip(:color="color") {{ status }}
       v-col(cols=12)
-        Calendar(:reservations="reservations" :equipId="equipId" @created="fetchreservations")
+        Calendar(:reservations="reservations" :equipId="equipId" @updated="fetchreservations")
       v-col(cols=12)
         div {{ equip }}
         div {{ reservations }}

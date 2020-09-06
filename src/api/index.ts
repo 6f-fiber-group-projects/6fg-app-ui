@@ -16,7 +16,16 @@ export default class Api {
   }
 
   static async createRsvn(params: ReserveEquipment): Promise <any> {
-    console.log(params)
     return await axios.post("reservation/equipment", params)
+  }
+
+  static async updateRsvn(params: ReserveEquipment): Promise <any> {
+    if(!params.id) return Promise.reject()
+    return await axios.put(`reservation/equipment/${params.id}`, params)
+  }
+
+  static async deleteRsvn(params: {id: number}): Promise <any> {
+    if(!params.id) return Promise.reject()
+    return await axios.delete(`reservation/equipment/${params.id}`)
   }
 }
