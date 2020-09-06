@@ -10,6 +10,10 @@ export default class Api {
     return await axios.get(`equipment/${equipId}`)
   }
 
+  static async createEquip(name: string): Promise<any> {
+    return await axios.post(`equipment`, {name})
+  }
+
   static async getRsvnByEquipId(equipId: number): Promise<any> {
     // TODO limit fetch data number
     return await axios.get(`reservation/equipment?equipId=${equipId}`)

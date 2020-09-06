@@ -1,22 +1,39 @@
 <template lang="pug">
-  v-row(justify="center")
-    v-col(v-for="e in equipsInfo" :key="e.id" cols=12 sm=3)
-      EquipmentCard(:equipInfo="e")
+  .equipment
+    v-row(justify="center")
+      v-col(v-for="e in equipsInfo" :key="e.id" cols=12 sm=3)
+        EquipmentCard(:equipInfo="e")
+    v-btn(fixed right bottom fab dark color="primary" @click="showEquipDetail=true")
+      v-icon add
+
+    v-dialog(v-model="showEquipDetail" max-width="600px")
+      EquipmentDetailCard(type="new" @cancel="showEquipDetail=false" @emit="create")
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { equipStore } from "@/store/index"
 import EquipmentCard from "@/components/EquipmentCard.vue"
+import EquipmentDetailCard from "@/components/EquipmentDetailCard.vue"
+import _ from "lodash"
+import api from '../api'
 
-@Component({ components: { EquipmentCard } })
+@Component({ components: { EquipmentCard, EquipmentDetailCard } })
 export default class EquipmentList extends Vue {
+  private showEquipDetail = false
+
   async mounted() {
     if(equipStore.getEquipsInfo.length === 0) await equipStore.fetchEquipsInfo()
   }
 
   get equipsInfo() {
-    return equipStore.getEquipsInfo
+    return _.sortBy(equipStore.getEquipsInfo, i => i.name)
+  }
+
+  async create(equipName: string) {
+    await api.createEquip(equipName)
+    await equipStore.fetchEquipsInfo()
+    this.showEquipDetail = false
   }
 }
 </script>
