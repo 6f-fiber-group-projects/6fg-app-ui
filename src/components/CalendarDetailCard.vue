@@ -154,13 +154,13 @@ export default class Calendar extends Vue {
   }
 
   deleteClicked() {
-    this.confirm = this.setConfirmation()
+    this.setConfirmation()
     this.showConfirm = true
   }
 
   setConfirmation() {
     const formattedDate = _.mapValues(this.dateInfos, this.formatDate)
-    return {
+    this.confirm = {
       title: "本当に予約を削除してもよいですか？",
       text: `
         <p>${this.event.name}</p>

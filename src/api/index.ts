@@ -1,5 +1,9 @@
 import axios from "axios"
-import { ReserveEquipment } from "@/models/types"
+import {
+  EquipmentReservationUpdate,
+  EquipmentCreate,
+  EquipmentUpdate
+} from "@/models/types"
 
 export default class Api {
   static async getUser(): Promise<any> {
@@ -10,8 +14,16 @@ export default class Api {
     return await axios.get(`equipment/${equipId}`)
   }
 
-  static async createEquip(name: string): Promise<any> {
-    return await axios.post(`equipment`, {name})
+  static async createEquip(params: EquipmentCreate): Promise<any> {
+    return await axios.post("equipment", params)
+  }
+
+  static async updateEquip(params: EquipmentUpdate): Promise<any> {
+    return await axios.put(`equipment/${params.id}`, params)
+  }
+
+  static async deleteEquip(id: number): Promise<any> {
+    return await axios.delete(`equipment/${id}`)
   }
 
   static async getRsvnByEquipId(equipId: number): Promise<any> {
@@ -19,11 +31,11 @@ export default class Api {
     return await axios.get(`reservation/equipment?equipId=${equipId}`)
   }
 
-  static async createRsvn(params: ReserveEquipment): Promise <any> {
+  static async createRsvn(params: EquipmentReservationUpdate): Promise <any> {
     return await axios.post("reservation/equipment", params)
   }
 
-  static async updateRsvn(params: ReserveEquipment): Promise <any> {
+  static async updateRsvn(params: EquipmentReservationUpdate): Promise <any> {
     if(!params.id) return Promise.reject()
     return await axios.put(`reservation/equipment/${params.id}`, params)
   }

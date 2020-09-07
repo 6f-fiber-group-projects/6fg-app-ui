@@ -1,8 +1,8 @@
 <template lang="pug">
   .equipment
-    v-row(justify="center")
+    v-row
       v-col(v-for="e in equipsInfo" :key="e.id" cols=12 sm=3)
-        EquipmentCard(:equipInfo="e")
+        EquipmentCard(:equipInfo="e" @editted="equipStore.fetchEquipsInfo()")
     v-btn(fixed right bottom fab dark color="primary" @click="showEquipDetail=true")
       v-icon add
 
@@ -31,7 +31,7 @@ export default class EquipmentList extends Vue {
   }
 
   async create(equipName: string) {
-    await api.createEquip(equipName)
+    await api.createEquip({name: equipName})
     await equipStore.fetchEquipsInfo()
     this.showEquipDetail = false
   }

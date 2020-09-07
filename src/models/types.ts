@@ -15,6 +15,16 @@ export type Equipment = {
 	Url: string
 }
 
+export type EquipmentCreate = {
+  name: string;
+}
+
+export type EquipmentUpdate = {
+  id: number;
+  name: string;
+  status: number;
+}
+
 export type EquipmentReservation = {
   Id: number
   UserId: number
@@ -24,8 +34,8 @@ export type EquipmentReservation = {
   EndDate: string
 }
 
-export type ReserveEquipment = {
-  id?: number,
+export type EquipmentReservationUpdate = {
+  id?: number
   userId: number
   equipId: number
   startDate: Date
