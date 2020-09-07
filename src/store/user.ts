@@ -11,6 +11,10 @@ export default class UserModule extends VuexModule {
     return this.users
   }
 
+  get getUserById() {
+    return (id: number) => this.users.filter((u: UserInfo) => u.id === id)[0]
+  }
+
   @Mutation
   setUsers(users: UserInfo[]) {
     console.log("setUsers", users)

@@ -22,85 +22,31 @@
                 v-list-item-title {{ cap(type) }}
     v-sheet
       v-calendar(v-model="focus" :type="type" :events="events" 
-          @click:event="showEvent" color="primary" ref="calendar")
-
-    v-dialog(v-model="showDialog" persistent max-width="600px")
-      CalendarDetailCard(:event="selectedEvent" :isNew="isNewEvent" @close="showDialog=false"
-          @created="createRsvn" @editted="updateRsvn" @deleted="deleteRsvn")
+          @click:event="eventSelected" color="primary" ref="calendar")
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { EquipmentRsvnInfo, UserInfo } from '../models'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 import { CalendarEvent } from '../models/types'
-import { userStore, authStore } from "@/store"
 import { capitalize } from "@/plugins/utils"
-import api from "@/api"
-import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
-import _ from "lodash"
 
-type RsvnInfo = {
-  id?: number;
-  userId?: number;
-  start: Date;
-  end: Date;
-}
-
-@Component({ components: { CalendarDetailCard } })
+@Component({})
 export default class Calendar extends Vue {
   private baseBtnColor = "grey darken-2"
   private calendar: any = ""
   private focus = ""
   private type = "month"
   private users: any
-  private events: Array<CalendarEvent> = []
-  private showDialog = false
-  private selectedEventInfo: any = {}
   private readonly availableTypes = ["month", "week", "day"]
-
-  @Prop({type: Array, default: []})
-  private reservations!: EquipmentRsvnInfo[]
 
   @Prop({type: Number})
   private equipId!: number
 
-  async mounted() {
-    this.users = userStore.getUsers.length === 0 
-      ? await userStore.fetchUsers()
-      : userStore.getUsers
+  @Prop({type: Array, default: () => ([])})
+  private events!: CalendarEvent[]
+
+  mounted() {
     this.calendar = this.$refs.calendar 
-    this.initReservation()
-  }
-
-  @Watch("reservations")
-  onChangeRsvn(){
-    this.events = _.map(this.reservations, r => this.setEvent(r))
-  }
-
-  get selectedEvent() {
-    return this.selectedEventInfo ? this.selectedEventInfo.event : {}
-  }
-
-  get isNewEvent() {
-    return !this.selectedEventInfo?.event || false
-  }
-
-  initReservation() {
-    this.onChangeRsvn()
-  }
-
-  setEvent(r: EquipmentRsvnInfo): CalendarEvent {
-    const user = this.users.filter((u: UserInfo) => u.id === r.userId)[0]
-    const start = new Date(r.start)
-    const end = new Date(r.end)
-    return {
-      rsvnId: r.id,
-      name: user.name,
-      user,
-      start,
-      end,
-      color: "primary",
-    }
   }
 
   setToday () {
@@ -119,50 +65,16 @@ export default class Calendar extends Vue {
     this.type = type
   }
 
-  showEvent(e: any) {
-    this.selectedEventInfo = e
-    this.showDialog = true
-  }
-
   book() {
-    this.selectedEventInfo = null
-    this.showDialog = true
+    this.$emit("eventSelected", null)
   }
 
-  async createRsvn(rsvnInfo: RsvnInfo) {
-    if (!authStore.getUserInfo) return
-    await api.createRsvn({
-      userId: authStore.getUserInfo.id,
-      equipId: this.equipId,
-      startDate: rsvnInfo.start,
-      endDate: rsvnInfo.end
-    })
-    .then(() => this.$emit("updated"))
-    this.showDialog = false
-  }
-
-  async updateRsvn(rsvnInfo: RsvnInfo) {
-    if(!rsvnInfo.userId || !rsvnInfo.id) return
-    await api.updateRsvn({
-      id: rsvnInfo.id,
-      userId: rsvnInfo.userId,
-      equipId: this.equipId,
-      startDate: rsvnInfo.start,
-      endDate: rsvnInfo.end
-    })
-    .then(() => this.$emit("updated"))
-    this.showDialog = false
-  }
-
-  async deleteRsvn(rsvnId: number) {
-    await api.deleteRsvn({id: rsvnId})
-    .then(() => this.$emit("updated"))
-    this.showDialog = false
+  eventSelected(e: any) {
+    this.$emit("eventSelected", e)
   }
 
   cap(str: string) {
     return capitalize(str)
   }
-
 }
 </script>
