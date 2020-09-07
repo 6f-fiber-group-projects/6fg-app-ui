@@ -16,7 +16,7 @@
           @close="showCalenderDetail=false" @created="createRsvn" @editted="updateRsvn" @deleted="deleteRsvn")
 
     v-dialog(v-model="showEquipDetail" max-width="600px")
-      EquipmentDetailCard(:name="equipName" @cancel="showEquipDetail=false" @emit="edited" @delete="deleted")
+      EquipmentDetailCard(:name="equipName" @cancel="showEquipDetail=false" @emit="updateEquipInfo" @delete="deleteEquip")
 </template>
 
 <script lang="ts">
@@ -125,7 +125,7 @@ export default class Equipment extends Vue {
     this.showCalenderDetail = true
   }
 
-  edited(equipName: string) {
+  updateEquipInfo(equipName: string) {
     if(!this.equip) return
     this.updateEquip({
       id: this.equipId,
@@ -143,16 +143,16 @@ export default class Equipment extends Vue {
     })
   }
 
-  async deleted() {
-    await api.deleteEquip(this.equipId)
-    this.showEquipDetail = false
-    this.$router.push("/")
-  }
-
   async updateEquip(params: EquipmentUpdate) {
     await api.updateEquip(params)
     this.showEquipDetail = false
     this.fetchEquips()
+  }
+
+  async deleteEquip() {
+    await api.deleteEquip(this.equipId)
+    this.showEquipDetail = false
+    this.$router.push("/")
   }
 
   async createRsvn(rsvnInfo: RsvnInfo) {
