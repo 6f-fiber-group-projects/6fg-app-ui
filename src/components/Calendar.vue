@@ -1,8 +1,6 @@
 <template lang="pug">
   .calendar
     v-sheet
-      v-btn(color="primary" @click="book") Book
-    v-sheet
       v-toolbar(flat)
         v-btn.mr-4(outlined :color="baseBtnColor" @click="setToday") Today
         v-btn(fab text small :color="baseBtnColor" @click="prev")
@@ -63,10 +61,6 @@ export default class Calendar extends Vue {
 
   setType(type: string) {
     this.type = type
-  }
-
-  book() {
-    this.$emit("eventSelected", null)
   }
 
   eventSelected(e: any) {

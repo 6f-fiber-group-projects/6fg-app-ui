@@ -7,13 +7,14 @@
           v-chip(:color="statusColor") {{ status }}
       v-col(cols=12)
         v-btn.mr-3(@click="showEquipDetail=true" depressed color="success" dark) 編集
+        v-btn.mr-3(@click="book" depressed color="primary" dark) 予約
         v-btn(@click="changeStatus" depressed :color="useBtnColor" dark) {{ useBtnText }}
       v-col(cols=12)
         Calendar(:events="events" :equipId="equipId" @eventSelected="showCaledarDetail")
 
     v-dialog(v-model="showCalenderDetail" persistent max-width="600px")
       CalendarDetailCard(:event="selectedCalendarEvent" :isNew="isNewCalendarEvent"
-          @close="showCalenderDetail=false" @created="createRsvn" @editted="updateRsvn" @deleted="deleteRsvn")
+          @close="showCalenderDetail=false" @created="createRsvn" @edited="updateRsvn" @deleted="deleteRsvn")
 
     v-dialog(v-model="showEquipDetail" max-width="600px")
       EquipmentDetailCard(:name="equipName" @cancel="showEquipDetail=false" @emit="updateEquipInfo" @delete="deleteEquip")
@@ -118,6 +119,11 @@ export default class Equipment extends Vue {
       end,
       color: "primary",
     }
+  }
+
+  book() {
+    this.selectedCalendarEventInfo = null
+    this.showCalenderDetail = true
   }
 
   showCaledarDetail(e: any) {

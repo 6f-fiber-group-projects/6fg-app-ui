@@ -138,7 +138,7 @@ export default class Calendar extends Vue {
         _.mapValues(this.dateInfos, this.formatDate),
         {id: this.event.rsvnId, userId: this.event.user.id}
       )
-      this.$emit("editted", updateInfo)
+      this.$emit("edited", updateInfo)
     }
     this.edit = false
     this.isDelete = false

@@ -23,7 +23,7 @@ export default class EquipmentList extends Vue {
   private showEquipDetail = false
 
   async mounted() {
-    if(equipStore.getEquipsInfo.length === 0) await equipStore.fetchEquipsInfo()
+    await equipStore.fetchEquipsInfo()
   }
 
   get equipsInfo() {
