@@ -9,22 +9,24 @@
         v-btn(v-if="showManageBtn" text fab small @click="deleteClicked")
           v-icon(small) delete
       v-card-text
-        v-row(v-for="(item, key, idx) in dateInfos" :key="idx")
-          v-col.py-0(cols=12) {{ item.label }}
-          v-col(cols=6)
-            v-menu(v-model="item.spacer" ref="date" :close-on-content-click="false" 
-                transition="scale-transition" offset-y :disabled="!editting")
-              template(v-slot:activator="{ on, attrs }")
-                v-text-field(v-model="item.date" label="日付" prepend-icon="event" v-on="on" v-bind="attrs" readonly :disabled="!editting")
-              v-date-picker(v-model="item.date" no-title scrollable)
-          v-col(cols=3)
-            v-select(v-model="item.hour" :items="hours" :disabled="!editting" label="時刻（時）")
-          v-col(cols=3)
-            v-select(v-model="item.minute" :items="minutes" :disabled="!editting" label="時刻（分）")
+        v-form(ref="date")
+          v-row(v-for="(item, key, idx) in dateInfos" :key="idx")
+            v-col.py-0(cols=12) {{ item.label }}
+            v-col(cols=6)
+              v-menu(v-model="item.spacer" ref="date" :close-on-content-click="false" 
+                  transition="scale-transition" offset-y :disabled="!editting")
+                template(v-slot:activator="{ on, attrs }")
+                  v-text-field(v-model="item.date" v-on="on" v-bind="attrs" readonly label="日付" prepend-icon="event"
+                    :rules="item.rules" :disabled="!editting")
+                v-date-picker(v-model="item.date" no-title scrollable)
+            v-col(cols=3)
+              v-select(v-model="item.hour" :items="hours" :disabled="!editting" :rules="item.rules" label="時刻（時）")
+            v-col(cols=3)
+              v-select(v-model="item.minute" :items="minutes" :disabled="!editting" :rules="item.rules" label="時刻（分）")
       v-card-actions
         v-spacer
         v-btn(@click="cancel" depressed color="grey darken-2" dark) cancel
-        v-btn(@click="emit" depressed :color="color" :disabled="!editting" :dark="editting") {{ emitBtnText }}
+        v-btn(@click="emit" depressed :color="color" :disabled="!editting || !canSubmit" :dark="editting && canSubmit") {{ emitBtnText }}
 
     v-dialog(v-model="showConfirm"  max-width="300px")
       ConfirmCard(emitBtnText="delete" @cancel="showConfirm=false" @emit="deleteHandler")
@@ -47,6 +49,7 @@ type DateInfo = {
   minute: number;
   showMenu: boolean;
   label: string;
+  rules: Array<Function>;
 }
 
 @Component({ components: { ConfirmCard } })
@@ -57,6 +60,7 @@ export default class Calendar extends Vue {
   private isDelete = false
   private showConfirm = false
   private confirm = {title: "", text: ""}
+  private dateValidater: any
 
   @Prop({type: Object, default: () => ({})})
   event!: CalendarEvent
@@ -68,6 +72,10 @@ export default class Calendar extends Vue {
     this.initDateInfo()
   }
 
+  mounted() {
+    this.dateValidater = this.$refs.date 
+  }
+
   @Watch("event")
   onEventChange(){
     this.initDateInfo()
@@ -75,7 +83,7 @@ export default class Calendar extends Vue {
 
   get color() {
     if(this.isNew) return "primary"
-    else if(this.isEditable()) return "success"
+    else if(this.canEdit && this.canManage) return "success"
     return "grey darken-2"
   }
 
@@ -83,8 +91,12 @@ export default class Calendar extends Vue {
     return this.isNew || this.edit
   }
 
+  get canEdit() {
+    return isLoginUser(this.event?.user.id) || isAdmin()
+  }
+
   get showManageBtn() {
-    return !this.isNew && this.isEditable()
+    return !this.isNew && this.canEdit && this.canManage
   }
 
   get hours() {
@@ -103,11 +115,25 @@ export default class Calendar extends Vue {
     return this.isNew ? authStore.getUserInfo?.name : this.event.name
   }
 
+  get canSubmit() {
+    return this.dateValidater.validate()
+  }
+
+  get canManage() {
+    if(!this.dateInfos.end) return false
+    return this.formatDate(this.dateInfos.end).getDate() > new Date().getDate()
+  }
+
   initDateInfo() {
-    this.originalDateInfos = {
-      start: Object.keys(this.event).length !== 0 ? this.event.start: new Date(),
-      end: Object.keys(this.event).length !== 0 ? this.event.end: new Date()
+    let date = {}
+    if(Object.keys(this.event).length === 0) {
+      const start = new Date()
+      const end = new Date
+      end.setMinutes(end.getMinutes() + 30)
+      date = {start, end}
     }
+    else date = {start: this.event.start, end: this.event.end}
+    this.originalDateInfos = date
     this.resetDate()
   }
 
@@ -119,9 +145,26 @@ export default class Calendar extends Vue {
         hour: parseInt(dateTime.hour),
         minute: parseInt(dateTime.minute),
         showMenu: false,
-        label: key === "start" ? "開始" : "終了"
+        label: key === "start" ? "開始" : "終了",
+        rules: key === "start" ? [this.afterNow] : [this.afterNow && this.afterStart]
       }
     })
+  }
+
+  afterNow() {
+    if(!this.canManage) true // not check unmanageable case
+    if(!this.dateInfos.start) return "Invalid start date info"
+    const isAfter = this.formatDate(this.dateInfos.start).getTime() > new Date().getTime()
+    if(!isAfter) return "現在時刻より前の日時は指定できません"
+    return true
+  }
+
+  afterStart() {
+    if(!this.canManage) true // not check unmanageable case
+    if(!this.dateInfos.start || !this.dateInfos.end) return "Invalid start of end date info"
+    const isAfter = this.formatDate(this.dateInfos.end).getTime() > this.formatDate(this.dateInfos.start).getTime()
+    if(!isAfter) return "利用開始時刻より前の日時は指定できません"
+    return true
   }
 
   cancel() {
@@ -170,12 +213,8 @@ export default class Calendar extends Vue {
     }
   }
 
-  isEditable() {
-    return isLoginUser(this.event?.user.id) || isAdmin()
-  }
-
   formatDate(d: DateInfo) {
-    return new Date(`${d.date}T${d.hour}:${d.minute}:00+0900`)
+    return new Date(`${d.date}T${d.hour.toString().padStart(2, "0")}:${d.minute.toString().padStart(2, "0")}:00+0900`)
   }
 
   splitDatetime(dateTime: Date) {
