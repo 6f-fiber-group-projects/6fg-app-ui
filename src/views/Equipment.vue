@@ -8,7 +8,7 @@
       v-col(cols=12)
         v-btn.mr-3(@click="showEquipDetail=true" depressed color="success" dark) 編集
         v-btn.mr-3(@click="book" depressed color="primary" dark) 予約
-        v-btn(@click="changeStatus" depressed :color="useBtnColor" dark) {{ useBtnText }}
+        v-btn(@click="changeStatus" depressed :color="useBtnColor" :disabled="!canChangeStatus") {{ useBtnText }}
       v-col(cols=12)
         Calendar(:events="events" :equipId="equipId" @eventSelected="showCaledarDetail")
 
@@ -25,6 +25,7 @@ import { Vue, Component } from 'vue-property-decorator'
 import { EquipmentInfo, EquipmentRsvnInfo } from '../models'
 import { EquipmentUpdate, CalendarEvent } from '../models/types'
 import { userStore, authStore } from '../store'
+import { isLoginUser, isAdmin } from "@/plugins/utils"
 import Calendar from "@/components/Calendar.vue"
 import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
 import EquipmentDetailCard from "@/components/EquipmentDetailCard.vue"
@@ -93,6 +94,19 @@ export default class Equipment extends Vue {
     return _.map(this.reservations, r => this.setEvent(r))
   }
 
+  get canChangeStatus() {
+    return this.equip?.status === 0 ? this.canStart : this.canStop
+  }
+
+  get canStart() {
+    return true
+  }
+
+  get canStop() {
+    if(!this.equip) return false
+    return isLoginUser(this.equip.currentUserId) || isAdmin()
+  }
+
   async fetchEquips() {
     await api.getEquipById(this.equipId)
     .then(d => this.equip = new EquipmentInfo(d.data.message))
@@ -131,26 +145,25 @@ export default class Equipment extends Vue {
     this.showCalenderDetail = true
   }
 
-  updateEquipInfo(equipName: string) {
+  async updateEquipInfo(equipName: string) {
     if(!this.equip) return
-    this.updateEquip({
+    await api.updateEquip({
       id: this.equipId,
       name: equipName,
       status: this.equip.status
     })
+    this.showEquipDetail = false
+    this.fetchEquips()
   }
 
-  changeStatus() {
-    if(!this.equip) return
-    this.updateEquip({
-      id: this.equipId,
-      name: this.equip.name,
-      status: (this.equip.status + 1) % 2 
+  async changeStatus() {
+    if(!this.equip || !authStore.getUserInfo) return
+    await api.updateEquipStatus({
+      equipId: this.equipId,
+      equipStatus: this.equip.status === 1 ? undefined : 1,
+      userId: authStore.getUserInfo.id,
+      rsvnId: undefined
     })
-  }
-
-  async updateEquip(params: EquipmentUpdate) {
-    await api.updateEquip(params)
     this.showEquipDetail = false
     this.fetchEquips()
   }
