@@ -1,5 +1,6 @@
 import { Module, VuexModule, Mutation, Action, } from "vuex-module-decorators"
 import { UserInfo } from "../models/index"
+import router from "@/router"
 import store from "@/store/index"
 import { notificationStore } from "@/store/index"
 import axios from "axios"
@@ -38,6 +39,9 @@ export default class AuthModule extends VuexModule {
     await axios.get("auth/logout")
     .then(() => notificationStore.info("Successfully logout"))
     .catch((e) => console.log(e))
-    .finally(() => this.context.commit("setUserInfo", null))
+    .finally(() => {
+      this.context.commit("setUserInfo", null)
+      router.push("/")
+    })
   }
 }

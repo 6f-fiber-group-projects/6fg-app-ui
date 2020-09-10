@@ -1,16 +1,9 @@
 import axios from "axios"
 import { authStore } from "@/store"
 // FIX ME
-let loggingOut = false
-const responseHandler = (res: any) => {
-  loggingOut = false
-  return res
-}
+const responseHandler = (res: any) => res
 const responseErrorHandler = (err: any) => {
-  if (err.response.status == 401 && loggingOut) {
-    authStore.logout()
-    loggingOut = true
-  }
+  if (err.response.status == 401) authStore.logout()
   return Promise.reject(err)
 }
 
