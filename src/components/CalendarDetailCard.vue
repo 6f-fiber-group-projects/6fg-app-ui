@@ -9,7 +9,7 @@
         v-btn(v-if="showManageBtn" text fab small @click="deleteClicked")
           v-icon(small) delete
       v-card-text
-        v-form(ref="date")
+        v-form(ref="dateForm")
           v-row(v-for="(item, key, idx) in dateInfos" :key="idx")
             v-col.py-0(cols=12) {{ item.label }}
             v-col(cols=6)
@@ -60,7 +60,7 @@ export default class Calendar extends Vue {
   private isDelete = false
   private showConfirm = false
   private confirm = {title: "", text: ""}
-  private dateValidater: any
+  private dateValidater: any = null
 
   @Prop({type: Object, default: () => ({})})
   event!: CalendarEvent
@@ -73,7 +73,7 @@ export default class Calendar extends Vue {
   }
 
   mounted() {
-    this.dateValidater = this.$refs.date 
+    this.dateValidater = this.$refs.dateForm
   }
 
   @Watch("event")
@@ -116,6 +116,7 @@ export default class Calendar extends Vue {
   }
 
   get canSubmit() {
+    if(!this.dateValidater) return false
     return this.dateValidater.validate()
   }
 
@@ -152,15 +153,15 @@ export default class Calendar extends Vue {
   }
 
   afterNow() {
-    if(!this.canManage) true // not check unmanageable case
+    if(!this.isNew && !this.canManage) return true // not check unmanageable case
     if(!this.dateInfos.start) return "Invalid start date info"
-    const isAfter = this.formatDate(this.dateInfos.start).getTime() > new Date().getTime()
+    const isAfter = this.formatDate(this.dateInfos.start).getTime() > (new Date().getTime() - 60*1000)
     if(!isAfter) return "現在時刻より前の日時は指定できません"
     return true
   }
 
   afterStart() {
-    if(!this.canManage) true // not check unmanageable case
+    if(!this.isNew && !this.canManage) return true // not check unmanageable case
     if(!this.dateInfos.start || !this.dateInfos.end) return "Invalid start of end date info"
     const isAfter = this.formatDate(this.dateInfos.end).getTime() > this.formatDate(this.dateInfos.start).getTime()
     if(!isAfter) return "利用開始時刻より前の日時は指定できません"
@@ -214,7 +215,9 @@ export default class Calendar extends Vue {
   }
 
   formatDate(d: DateInfo) {
-    return new Date(`${d.date}T${d.hour.toString().padStart(2, "0")}:${d.minute.toString().padStart(2, "0")}:00+0900`)
+    const hourStr = d.hour.toString().padStart(2, "0")
+    const minuteStr = d.minute.toString().padStart(2, "0")
+    return new Date(`${d.date}T${hourStr}:${minuteStr}:00+0900`)
   }
 
   splitDatetime(dateTime: Date) {
