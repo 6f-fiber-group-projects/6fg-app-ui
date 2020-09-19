@@ -99,12 +99,24 @@ export default class Equipment extends Vue {
   }
 
   get canStart() {
+    // check if there is reservation
+    // if there is
+    //   check the userId
+    // else 
+    //   true
     return true
   }
 
   get canStop() {
+    // check if user is admin
+    // if isadmin true
+    // check if there is reservationId
+    // if there is
+    //   check the userId
+    // else 
+    //   false
     if(!this.equip) return false
-    return isLoginUser(this.equip.currentUserId) || isAdmin()
+    return isLoginUser(this.equip.userId) || isAdmin()
   }
 
   async fetchEquips() {
@@ -160,7 +172,7 @@ export default class Equipment extends Vue {
     if(!this.equip || !authStore.getUserInfo) return
     await api.updateEquipStatus({
       equipId: this.equipId,
-      equipStatus: this.equip.status === 1 ? undefined : 1,
+      equipStatus: (this.equip.status + 1) % 2,
       userId: authStore.getUserInfo.id,
       rsvnId: undefined
     })

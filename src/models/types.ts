@@ -12,7 +12,7 @@ export type Equipment = {
   Id: number
   Name: string
   Status: number
-  CurrentUserID: number
+  userId: number
 	Url: string
 }
 
