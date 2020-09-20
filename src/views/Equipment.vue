@@ -10,7 +10,7 @@
         v-btn.mr-3(@click="book" depressed color="primary" dark) 予約
         v-btn(@click="changeStatus" depressed :color="useBtnColor" :disabled="!canChangeStatus") {{ useBtnText }}
       v-col(cols=12)
-        Calendar(:events="events" :equipId="equipId" @eventSelected="showCaledarDetail")
+        Calendar(:events="events" :equipId="equipId" @eventSelected="calendarEventHandler")
 
     v-dialog(v-model="showCalenderDetail" persistent max-width="600px")
       CalendarDetailCard(:event="selectedCalendarEvent" :isNew="isNewCalendarEvent"
@@ -71,8 +71,9 @@ export default class Equipment extends Vue {
   }
 
   get useBtnText() {
-    if(!this.canStart && !this.canStop) return "予約済み"
-    return this.equip?.status === 0 ? "使用開始" : "終了"
+    return this.equip?.status === 0
+      ? this.canStart ? "使用開始" : "予約済み"
+      : "終了"
   }
 
   get useBtnColor() {
@@ -107,10 +108,7 @@ export default class Equipment extends Vue {
   }
 
   get canStop() {
-    console.log(this.equip)
     if(!this.equip) return false
-    console.log(isLoginUser(this.equip.userId))
-    console.log(isAdmin())
     return this.equip && (isLoginUser(this.equip.userId) || isAdmin())
   }
 
@@ -125,7 +123,6 @@ export default class Equipment extends Vue {
   async fetchEquips() {
     await api.getEquipById(this.equipId)
     .then(d => this.equip = new EquipmentInfo(d.data.message))
-    console.log(this.equip)
   }
 
   async fetchRsvns() {
@@ -156,7 +153,7 @@ export default class Equipment extends Vue {
     this.showCalenderDetail = true
   }
 
-  showCaledarDetail(e: any) {
+  calendarEventHandler(e: any) {
     this.selectedCalendarEventInfo = e
     this.showCalenderDetail = true
   }
