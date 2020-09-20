@@ -71,6 +71,7 @@ export default class Equipment extends Vue {
   }
 
   get useBtnText() {
+    if(!this.canStart && !this.canStop) return "予約済み"
     return this.equip?.status === 0 ? "使用開始" : "終了"
   }
 
@@ -99,29 +100,32 @@ export default class Equipment extends Vue {
   }
 
   get canStart() {
-    // check if there is reservation
-    // if there is
-    //   check the userId
-    // else 
-    //   true
-    return true
+    const rsvn = this.currentReservation()
+    if(!rsvn) return true
+    if(rsvn.userId === authStore.getUserInfo?.id) return true
+    return false
   }
 
   get canStop() {
-    // check if user is admin
-    // if isadmin true
-    // check if there is reservationId
-    // if there is
-    //   check the userId
-    // else 
-    //   false
+    console.log(this.equip)
     if(!this.equip) return false
-    return isLoginUser(this.equip.userId) || isAdmin()
+    console.log(isLoginUser(this.equip.userId))
+    console.log(isAdmin())
+    return this.equip && (isLoginUser(this.equip.userId) || isAdmin())
+  }
+
+  currentReservation() {
+    // Fix me
+    return _.find(this.reservations, (r) => {
+      const now = new Date()
+      return r.start <= now && now <= r.end
+    })
   }
 
   async fetchEquips() {
     await api.getEquipById(this.equipId)
     .then(d => this.equip = new EquipmentInfo(d.data.message))
+    console.log(this.equip)
   }
 
   async fetchRsvns() {

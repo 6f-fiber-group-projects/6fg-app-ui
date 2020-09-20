@@ -43,7 +43,7 @@ export class EquipmentInfo {
     this.name = obj.Name
     this.status = obj.Status
     this.imgsrc = obj.Url
-    this.userId = obj.userId
+    this.userId = obj.UserId
   }
 } 
 
