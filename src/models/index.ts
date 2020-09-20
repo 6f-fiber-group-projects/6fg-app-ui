@@ -36,12 +36,14 @@ export class EquipmentInfo {
   name: string
   status: number
   imgsrc: string
+  userId: number
 
   constructor(obj: Equipment){
     this.id = obj.Id
     this.name = obj.Name
     this.status = obj.Status
     this.imgsrc = obj.Url
+    this.userId = obj.UserId
   }
 } 
 

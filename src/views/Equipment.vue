@@ -8,7 +8,7 @@
       v-col(cols=12)
         v-btn.mr-3(@click="showEquipDetail=true" depressed color="success" dark) 編集
         v-btn.mr-3(@click="book" depressed color="primary" dark) 予約
-        v-btn(@click="changeStatus" depressed :color="useBtnColor" dark) {{ useBtnText }}
+        v-btn(@click="changeStatus" depressed :color="useBtnColor" :disabled="!canChangeStatus") {{ useBtnText }}
       v-col(cols=12)
         Calendar(:events="events" :equipId="equipId" @eventSelected="showCaledarDetail")
 
@@ -25,6 +25,7 @@ import { Vue, Component } from 'vue-property-decorator'
 import { EquipmentInfo, EquipmentRsvnInfo } from '../models'
 import { EquipmentUpdate, CalendarEvent } from '../models/types'
 import { userStore, authStore } from '../store'
+import { isLoginUser, isAdmin } from "@/plugins/utils"
 import Calendar from "@/components/Calendar.vue"
 import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
 import EquipmentDetailCard from "@/components/EquipmentDetailCard.vue"
@@ -70,6 +71,7 @@ export default class Equipment extends Vue {
   }
 
   get useBtnText() {
+    if(!this.canStart && !this.canStop) return "予約済み"
     return this.equip?.status === 0 ? "使用開始" : "終了"
   }
 
@@ -93,9 +95,37 @@ export default class Equipment extends Vue {
     return _.map(this.reservations, r => this.setEvent(r))
   }
 
+  get canChangeStatus() {
+    return this.equip?.status === 0 ? this.canStart : this.canStop
+  }
+
+  get canStart() {
+    const rsvn = this.currentReservation()
+    if(!rsvn) return true
+    if(rsvn.userId === authStore.getUserInfo?.id) return true
+    return false
+  }
+
+  get canStop() {
+    console.log(this.equip)
+    if(!this.equip) return false
+    console.log(isLoginUser(this.equip.userId))
+    console.log(isAdmin())
+    return this.equip && (isLoginUser(this.equip.userId) || isAdmin())
+  }
+
+  currentReservation() {
+    // Fix me
+    return _.find(this.reservations, (r) => {
+      const now = new Date()
+      return r.start <= now && now <= r.end
+    })
+  }
+
   async fetchEquips() {
     await api.getEquipById(this.equipId)
     .then(d => this.equip = new EquipmentInfo(d.data.message))
+    console.log(this.equip)
   }
 
   async fetchRsvns() {
@@ -131,26 +161,25 @@ export default class Equipment extends Vue {
     this.showCalenderDetail = true
   }
 
-  updateEquipInfo(equipName: string) {
+  async updateEquipInfo(equipName: string) {
     if(!this.equip) return
-    this.updateEquip({
+    await api.updateEquip({
       id: this.equipId,
       name: equipName,
       status: this.equip.status
     })
+    this.showEquipDetail = false
+    this.fetchEquips()
   }
 
-  changeStatus() {
-    if(!this.equip) return
-    this.updateEquip({
-      id: this.equipId,
-      name: this.equip.name,
-      status: (this.equip.status + 1) % 2 
+  async changeStatus() {
+    if(!this.equip || !authStore.getUserInfo) return
+    await api.updateEquipStatus({
+      equipId: this.equipId,
+      equipStatus: (this.equip.status + 1) % 2,
+      userId: authStore.getUserInfo.id,
+      rsvnId: undefined
     })
-  }
-
-  async updateEquip(params: EquipmentUpdate) {
-    await api.updateEquip(params)
     this.showEquipDetail = false
     this.fetchEquips()
   }

@@ -2,7 +2,8 @@ import axios from "axios"
 import {
   EquipmentReservationUpdate,
   EquipmentCreate,
-  EquipmentUpdate
+  EquipmentUpdate,
+  EquipmentStautsUpdate
 } from "@/models/types"
 
 export default class Api {
@@ -20,6 +21,10 @@ export default class Api {
 
   static async updateEquip(params: EquipmentUpdate): Promise<any> {
     return await axios.put(`equipment/${params.id}`, params)
+  }
+
+  static async updateEquipStatus(params: EquipmentStautsUpdate): Promise<any> {
+    return await axios.post(`equipment/${params.equipId}/status`, params)
   }
 
   static async deleteEquip(id: number): Promise<any> {

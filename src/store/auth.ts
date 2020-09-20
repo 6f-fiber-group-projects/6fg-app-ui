@@ -41,7 +41,7 @@ export default class AuthModule extends VuexModule {
     .catch((e) => console.log(e))
     .finally(() => {
       this.context.commit("setUserInfo", null)
-      router.push("/")
+      router.push("/login")
     })
   }
 }

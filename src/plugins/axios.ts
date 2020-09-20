@@ -3,7 +3,7 @@ import { authStore } from "@/store"
 // FIX ME
 const responseHandler = (res: any) => res
 const responseErrorHandler = (err: any) => {
-  if (err.response.status == 401) authStore.logout()
+  if (err.response.status == 401 && authStore.isLogin) authStore.logout()
   return Promise.reject(err)
 }
 
