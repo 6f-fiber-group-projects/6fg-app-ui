@@ -6,7 +6,7 @@
       slot(name="text")
     v-card-actions
       v-spacer
-      v-btn(@click="cancel" depressed color="grey darken-2" dark) cancel
+      v-btn(@click="cancel" depressed color="grey darken-2" dark) キャンセル
       v-btn(@click="emit" depressed color="error") {{ emitBtnText }}
 </template>
 

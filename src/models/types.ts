@@ -3,9 +3,23 @@ import { UserInfo } from "@/models"
 export type User = {
   id: number
   auth_id: number
-	google_id: number
+	google_id?: number
 	name: string
 	email: string
+}
+
+export type UserCreate = {
+	name: string
+  email: string
+  password: string
+}
+
+export type UserUpdate = {
+  id: number
+	name: string
+  email: string
+  password: string
+  authId: number
 }
 
 export type Equipment = {

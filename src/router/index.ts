@@ -16,6 +16,16 @@ const routes: Array<RouteConfig> = [
     component: () => import("../views/Equipment.vue")
   },
   {
+    path: '/user',
+    name: 'UserList',
+    component: () => import("../views/UserList.vue")
+  },
+  {
+    path: '/user/:userId',
+    name: 'User',
+    component: () => import("../views/User.vue")
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import("../views/Login.vue")
