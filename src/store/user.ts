@@ -1,7 +1,9 @@
 import { Module, VuexModule, Mutation, Action, } from "vuex-module-decorators"
 import { UserInfo } from "../models/index"
+import { User } from '@/models/types'
 import store from "@/store/index"
 import api from "@/api"
+import _ from "lodash"
 
 @Module({ store, name: 'user' })
 export default class UserModule extends VuexModule {
@@ -16,9 +18,9 @@ export default class UserModule extends VuexModule {
   }
 
   @Mutation
-  setUsers(users: UserInfo[]) {
+  setUsers(users: User[]) {
     console.log("setUsers", users)
-    this.users = users
+    this.users = _.map(users, (u: User) => new UserInfo(u))
   }
 
   @Action({ rawError: true, commit: "setUsers" })

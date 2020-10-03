@@ -4,11 +4,11 @@
       v-col(cols=12)
         v-row.align-center
           span.text-h3.mr-5 {{ equip.name }}
-          v-chip(:color="statusColor") {{ status }}
+          v-chip(:color="statusColor") {{ statusText }}
       v-col(cols=12)
-        v-btn.mr-3(@click="showEquipDetail=true" depressed color="success" dark) 編集
-        v-btn.mr-3(@click="book" depressed color="primary" dark) 予約
-        v-btn(@click="changeStatus" depressed :color="useBtnColor" :disabled="!canChangeStatus") {{ useBtnText }}
+        v-btn.mr-3(@click="showEquipDetail=true" rounded color="success" dark) 編集
+        v-btn.mr-3(@click="book" rounded color="primary" dark) 予約
+        v-btn(@click="changeStatus" rounded :color="useBtnColor" :disabled="!canChangeStatus") {{ useBtnText }}
       v-col(cols=12)
         Calendar(:events="events" :equipId="equipId" @eventSelected="calendarEventHandler")
 
@@ -32,7 +32,7 @@ import EquipmentDetailCard from "@/components/EquipmentDetailCard.vue"
 import api from "@/api"
 import _ from "lodash"
 
-const COLOR_CODE = ["success", "error", "warning"]
+const COLOR_CODE = ["success", "warning", "error"] //使用可能・予約中・使用中
 
 type RsvnInfo = {
   id?: number;
@@ -62,18 +62,24 @@ export default class Equipment extends Vue {
   }
 
   get status() {
-    if(!this.equip) return "error"
-    return this.equip.status === 0 ? "使用可能" : "使用中"
+    return this.equip?.status === 0
+      ? this.canStart ? 0 : 1 : 2
+  }
+
+  get statusText() {
+    if (this.status === 0) return "使用可能"
+    else if (this.status === 1) return "予約中"
+    return "使用中"
   }
 
   get statusColor() {
-    return this.equip ? COLOR_CODE[this.equip.status] : COLOR_CODE[1]
+    return COLOR_CODE[this.status]
   }
 
   get useBtnText() {
-    return this.equip?.status === 0
-      ? this.canStart ? "使用開始" : "予約済み"
-      : "終了"
+    if (this.status === 0) return "使用開始"
+    else if (this.status === 1) return "予約済み"
+    return "終了"
   }
 
   get useBtnColor() {

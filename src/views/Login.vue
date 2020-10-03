@@ -2,12 +2,12 @@
   v-row(align="center" justify="center")
     v-col(cols=12 lg=4)
       v-card(elevation=0)
-        v-card-title Login
+        v-card-title ログイン
         v-card-text
-          v-text-field(v-model="loginInfo.email" label="e-mail")
-          v-text-field(v-model="loginInfo.password" label="password")
+          v-text-field(v-model="loginInfo.email" label="メールアドレス")
+          v-text-field(v-model="loginInfo.password" type="password" label="パスワード")
         v-card-actions.justify-center
-          v-btn.px-10.primary(rounded @click="login" :disabled="!canLogin") login
+          v-btn.px-10.primary(rounded @click="login" :disabled="!canLogin") ログイン
 </template>
 
 <script lang="ts">
@@ -27,7 +27,7 @@ export default class Login extends Vue {
     .then(() => this.letIn())
   }
 
-  letIn(){
+  letIn() {
     this.$router.push(
       this.$route.query.redirect
         ? this.$route.query.redirect[0] || "/"

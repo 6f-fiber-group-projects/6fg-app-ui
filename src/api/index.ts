@@ -1,5 +1,7 @@
 import axios from "axios"
 import {
+  UserCreate,
+  UserUpdate,
   EquipmentReservationUpdate,
   EquipmentCreate,
   EquipmentUpdate,
@@ -9,6 +11,14 @@ import {
 export default class Api {
   static async getUser(): Promise<any> {
     return await axios.get("user")
+  }
+
+  static async createUser(params: UserCreate): Promise<any> {
+    return await axios.post("user", params)
+  }
+
+  static async updateUser(params: UserUpdate): Promise<any> {
+    return await axios.put(`user/${params.id}`, params)
   }
 
   static async getEquipById(equipId: number): Promise<any> {

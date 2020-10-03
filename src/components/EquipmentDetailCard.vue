@@ -4,14 +4,14 @@
       v-toolbar.mb-3(:color="titleColor" dark dense elevation=0)
         v-toolbar-title {{ titleText }}
         v-spacer
-        v-btn(v-if="authorized" @click="deleteClicked" text fab small)
+        v-btn(v-if="authorized && type === 'edit'" @click="deleteClicked" text fab small)
           v-icon delete
       v-card-text
         v-alert(v-if="!authorized" type="error") この操作ができる権限がありません
         v-text-field(v-model="equipName" label="実験装置名" :disabled="!authorized")
       v-card-actions
         v-spacer
-        v-btn(@click="cancel" depressed color="grey darken-2" dark) cancel
+        v-btn(@click="cancel" depressed color="grey darken-2" dark) キャンセル
         v-btn(@click="emit" depressed :color="emitBtnColor" :disabled="!authorized") {{ emitBtnText }}
 
     v-dialog(v-model="showConfirm"  max-width="300px")

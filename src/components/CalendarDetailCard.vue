@@ -5,9 +5,9 @@
         v-toolbar-title {{ cardTile }}
         v-spacer
         v-btn(v-if="showManageBtn" text fab small @click="editClicked")
-          v-icon(small) edit
+          v-icon(small) 編集
         v-btn(v-if="showManageBtn" text fab small @click="deleteClicked")
-          v-icon(small) delete
+          v-icon(small) 削除
       v-card-text
         v-form(ref="dateForm")
           v-row(v-for="(item, key, idx) in dateInfos" :key="idx")
@@ -25,7 +25,7 @@
               v-select(v-model="item.minute" :items="minutes" :disabled="!editting" :rules="item.rules" label="時刻（分）")
       v-card-actions
         v-spacer
-        v-btn(@click="cancel" depressed color="grey darken-2" dark) cancel
+        v-btn(@click="cancel" depressed color="grey darken-2" dark) キャンセル
         v-btn(@click="emit" depressed :color="color" :disabled="!editting || !canSubmit" :dark="editting && canSubmit") {{ emitBtnText }}
 
     v-dialog(v-model="showConfirm"  max-width="300px")
@@ -108,7 +108,7 @@ export default class Calendar extends Vue {
   }
 
   get emitBtnText() {
-    return this.isNew ? "book" : "edit"
+    return this.isNew ? "予約" : "編集"
   }
 
   get cardTile() {
@@ -147,7 +147,7 @@ export default class Calendar extends Vue {
         minute: parseInt(dateTime.minute),
         showMenu: false,
         label: key === "start" ? "開始" : "終了",
-        rules: key === "start" ? [this.afterNow] : [this.afterNow && this.afterStart]
+        rules: key === "start" ? [this.afterNow] : [this.afterNow && this.afterStart] // need to check if bookable
       }
     })
   }
