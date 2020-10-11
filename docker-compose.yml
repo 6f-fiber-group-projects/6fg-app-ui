@@ -10,5 +10,35 @@ services:
     volumes:
       - .:/usr/src/app
       - node_modules:/usr/src/app/node_modules
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - 8000:8080
+    environment:
+      ENV: "dev"
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: api
+      DB_PORT: 5432
+      DB_HOST: db
+      ALLOW_ORIGIN: http://localhost:8080
+      ADMIN_ID: 1
+      VIEWER_ID: 3
+
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_ui:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+
 volumes:
+  postgres_ui:
   node_modules:
