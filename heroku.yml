@@ -1,4 +1,4 @@
 build:
   docker:
     web: Dockerfile
-    api: Dockerfile.api
+    # api: Dockerfile.api
