@@ -13,7 +13,7 @@
         Calendar(:events="events" :equipId="equipId" @eventSelected="calendarEventHandler")
 
     v-dialog(v-model="showCalenderDetail" persistent max-width="600px")
-      CalendarDetailCard(:event="selectedCalendarEvent" :isNew="isNewCalendarEvent"
+      CalendarDetailCard(:event="selectedCalendarEvent" :rsvnEvents="events" :isNew="isNewCalendarEvent"
           @close="showCalenderDetail=false" @created="createRsvn" @edited="updateRsvn" @deleted="deleteRsvn")
 
     v-dialog(v-model="showEquipDetail" max-width="600px")
