@@ -7,8 +7,6 @@ const responseErrorHandler = (err: any) => {
   return Promise.reject(err)
 }
 
-console.log(process.env)
-
 axios.defaults.baseURL = process.env.NODE_ENV === "production"
   ? "https://aqueous-hollows-30635.herokuapp.com/"
   : "http://localhost:8000/"
