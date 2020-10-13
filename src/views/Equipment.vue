@@ -53,12 +53,21 @@ export default class Equipment extends Vue {
   private showCalenderDetail = false
   private showEquipDetail = false
   private selectedCalendarEventInfo: any = {}
+  private fetchUserId = 0
+  private fetchEquipId = 0
+  private fetchEquipRsvnId = 0
 
-  async mounted() {
+  mounted() {
     this.equipId = parseInt(this.$route.params.equipId)
-    await this.fetchUsers()
-    await this.fetchEquips()
-    await this.fetchRsvns()
+    this.fetchUserId = setInterval(this.fetchUsers, 5000)
+    this.fetchEquipId = setInterval(this.fetchEquips, 5000)
+    this.fetchEquipRsvnId = setInterval(this.fetchRsvns, 5000)
+  }
+
+  beforeDestroy() {
+    clearInterval(this.fetchUserId)
+    clearInterval(this.fetchEquipId)
+    clearInterval(this.fetchEquipRsvnId)
   }
 
   get status() {
@@ -126,18 +135,18 @@ export default class Equipment extends Vue {
     })
   }
 
-  async fetchEquips() {
-    await api.getEquipById(this.equipId)
+  fetchEquips() {
+    api.getEquipById(this.equipId)
     .then(d => this.equip = new EquipmentInfo(d.data.message))
   }
 
-  async fetchRsvns() {
-    await api.getRsvnByEquipId(this.equipId)
+  fetchRsvns() {
+    api.getRsvnByEquipId(this.equipId)
     .then(d => this.reservations = _.map(d.data.message, rsvn => new EquipmentRsvnInfo(rsvn)))
   }
 
-  async fetchUsers() {
-    await userStore.fetchUsers()
+  fetchUsers() {
+    userStore.fetchUsers()
   }
 
   setEvent(r: EquipmentRsvnInfo): CalendarEvent {

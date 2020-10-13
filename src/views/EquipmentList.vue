@@ -21,9 +21,14 @@ import api from '../api'
 @Component({ components: { EquipmentCard, EquipmentDetailCard } })
 export default class EquipmentList extends Vue {
   private showEquipDetail = false
+  private fetchEquipId = 0
 
-  async mounted() {
-    await equipStore.fetchEquipsInfo()
+  mounted() {
+    this.fetchEquipId = setInterval(this.fetchEquips, 5000)
+  }
+
+  beforeDestroy() {
+    clearInterval(this.fetchEquipId)
   }
 
   get equipsInfo() {
@@ -32,8 +37,12 @@ export default class EquipmentList extends Vue {
 
   async create(equipName: string) {
     await api.createEquip({name: equipName})
-    await equipStore.fetchEquipsInfo()
+    await this.fetchEquips()
     this.showEquipDetail = false
+  }
+
+  async fetchEquips() {
+    await equipStore.fetchEquipsInfo()
   }
 }
 </script>
