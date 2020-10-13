@@ -1,6 +1,4 @@
-FROM node:14.7.0-alpine3.12
-
-RUN npm install -g http-server
+FROM node
 
 WORKDIR /app
 
@@ -12,4 +10,4 @@ COPY . .
 
 RUN npm run build
 
-CMD [ "http-server", "dist" ]
+CMD [ "node", "server.js" ]
