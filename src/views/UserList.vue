@@ -35,8 +35,14 @@ export default class UserList extends Vue {
   ]
   private userId = 0
 
+  private fetchUserId = 0
+
   mounted() {
-    this.fetchUsers()
+    this.fetchUserId = setInterval(this.fetchUsers, 5000)
+  }
+
+  beforeDestroy() {
+    clearInterval(this.fetchUserId)
   }
 
   get isAdmin() {
