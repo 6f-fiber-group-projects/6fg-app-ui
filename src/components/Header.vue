@@ -26,7 +26,8 @@
       router-link(to="/")
         v-toolbar-title.white--text(@click="selected") Fiber App
 
-    v-progress-linear.mt-16(v-show="loading" active indeterminate height="6")
+    v-progress-linear.mt-16.mb-n16(v-show="loading" active indeterminate height="4")
+    div.mb-1(v-show="!loading")
 </template>
 
 <script lang="ts">
