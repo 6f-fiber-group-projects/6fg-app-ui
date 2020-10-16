@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { userStore } from '../store'
+import { userStore, appStore } from '../store'
 import { UserCreate, UserUpdate } from '../models/types'
 import { isAdmin, isLoginUser } from "@/plugins/utils"
 import UserDetailCard from "@/components/UserDetailCard.vue"
@@ -38,7 +38,12 @@ export default class UserList extends Vue {
   private fetchUserId = 0
 
   mounted() {
+    appStore.onLoading()
     this.fetchUserId = setInterval(this.fetchUsers, 5000)
+  }
+
+  updated() {
+    appStore.offLoading()
   }
 
   beforeDestroy() {

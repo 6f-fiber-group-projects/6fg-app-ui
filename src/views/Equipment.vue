@@ -24,7 +24,7 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { EquipmentInfo, EquipmentRsvnInfo } from '../models'
 import { EquipmentUpdate, CalendarEvent } from '../models/types'
-import { userStore, authStore } from '../store'
+import { userStore, authStore, appStore } from '../store'
 import { isLoginUser, isAdmin } from "@/plugins/utils"
 import Calendar from "@/components/Calendar.vue"
 import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
@@ -58,10 +58,13 @@ export default class Equipment extends Vue {
   private fetchEquipRsvnId = 0
 
   mounted() {
+    appStore.onLoading()
     this.equipId = parseInt(this.$route.params.equipId)
-    this.fetchUserId = setInterval(this.fetchUsers, 5000)
-    this.fetchEquipId = setInterval(this.fetchEquips, 5000)
-    this.fetchEquipRsvnId = setInterval(this.fetchRsvns, 5000)
+    this.setIntervals()
+  }
+
+  updated() {
+    appStore.offLoading()
   }
 
   beforeDestroy() {
@@ -127,6 +130,12 @@ export default class Equipment extends Vue {
     return this.equip && (isLoginUser(this.equip.userId) || isAdmin())
   }
 
+  setIntervals() {
+    this.fetchUserId = setInterval(this.fetchUsers, 5000)
+    this.fetchEquipId = setInterval(this.fetchEquips, 5000)
+    this.fetchEquipRsvnId = setInterval(this.fetchRsvns, 5000)
+  }
+
   currentReservation() {
     // Fix me
     return _.find(this.reservations, (r) => {
@@ -135,18 +144,18 @@ export default class Equipment extends Vue {
     })
   }
 
-  fetchEquips() {
-    api.getEquipById(this.equipId)
+  async fetchEquips() {
+    await api.getEquipById(this.equipId)
     .then(d => this.equip = new EquipmentInfo(d.data.message))
   }
 
-  fetchRsvns() {
-    api.getRsvnByEquipId(this.equipId)
+  async fetchRsvns() {
+    await api.getRsvnByEquipId(this.equipId)
     .then(d => this.reservations = _.map(d.data.message, rsvn => new EquipmentRsvnInfo(rsvn)))
   }
 
-  fetchUsers() {
-    userStore.fetchUsers()
+  async fetchUsers() {
+    await userStore.fetchUsers()
   }
 
   setEvent(r: EquipmentRsvnInfo): CalendarEvent {

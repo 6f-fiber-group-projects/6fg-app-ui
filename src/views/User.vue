@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { authStore } from '../store'
+import { authStore, appStore } from '../store'
 import UserDetailCard from "@/components/UserDetailCard.vue"
 import { UserUpdate } from '../models/types'
 import api from "@/api" 
@@ -34,7 +34,12 @@ export default class User extends Vue {
   private showUserEdit = false
 
   mounted() {
+    appStore.onLoading()
     this.userId = parseInt(this.$route.params.userId)
+  }
+
+  updated() {
+    appStore.offLoading()
   }
 
   get user() {

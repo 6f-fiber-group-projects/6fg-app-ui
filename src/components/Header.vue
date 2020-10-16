@@ -25,11 +25,13 @@
       v-app-bar-nav-icon(v-if="isLogin" @click.stop="drawer = !drawer")
       router-link(to="/")
         v-toolbar-title.white--text(@click="selected") Fiber App
+
+    v-progress-linear.mt-16(v-show="loading" active indeterminate height="6")
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { authStore } from "@/store/index"
+import { authStore, appStore} from "@/store/index"
 
 @Component({})
 export default class Header extends Vue {
@@ -42,6 +44,10 @@ export default class Header extends Vue {
   get userPageUrl() {
     const userId = authStore.getUserInfo?.id
     return `/user/${userId}`
+  }
+
+  get loading() {
+    return appStore.isLoading
   }
 
   selected() {

@@ -10,12 +10,12 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { Notification } from "@/models/index"
-import { notificationStore } from "@/store/index"
+import { appStore } from "@/store/index"
 
 @Component({})
 export default class NotificationPopup extends Vue {
   get notifications(): Notification[] {
-    return notificationStore.getNotifications
+    return appStore.getNotifications
   }
 
   color(n: Notification): string {
@@ -23,7 +23,7 @@ export default class NotificationPopup extends Vue {
   }
 
   close(n: Notification) {
-    notificationStore.remove(n.id)
+    appStore.remove(n.id)
   }
 
   timeout(n: Notification): number {
