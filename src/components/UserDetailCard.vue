@@ -9,7 +9,7 @@
           v-text-field(v-model="email" label="メールアドレス" validate-on-blur :rules="emailRules()")
           v-checkbox(v-if="!isNew" v-model="editPassword" @click="eiditPasswordClicked" label="パスワードを変更する")
           v-text-field(v-model="password" v-if="showEditPassword" label="パスワード" validate-on-blur :rules="passwordRules()")
-          v-radio-group(v-if="!isNew" v-model="authId" :disabled="!isAdmin")
+          v-radio-group(v-if="!isNew" v-model="authId" :disabled="!canEditAuth")
             v-radio(v-for="n in 3" :key="n" :value="n" :label="authLabel(n)")
       v-card-actions
         v-spacer
@@ -21,6 +21,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { 
   isAdmin,
+  isLoginUser,
   existSameUserName,
   existSameUserEmail,
   validatePassword,
@@ -82,6 +83,12 @@ export default class UserDetailCard extends Vue {
       user.authId = this.authId
     }
     return user
+  }
+
+  get canEditAuth() {
+    // unable to change own auth to avoid the situation
+    // where there is no admin user
+    return isAdmin() && !isLoginUser(this.userId)
   }
 
   initEditInfo() {
