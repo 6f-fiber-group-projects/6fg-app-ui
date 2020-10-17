@@ -5,9 +5,9 @@
         v-toolbar-title {{ cardTile }}
         v-spacer
         v-btn(v-if="showManageBtn" text fab small @click="editClicked")
-          v-icon(small) 編集
+          v-icon(small) edit
         v-btn(v-if="showManageBtn" text fab small @click="deleteClicked")
-          v-icon(small) 削除
+          v-icon(small) delete
       v-card-text
         v-form(ref="dateForm")
           v-row(v-for="(item, key, idx) in dateInfos" :key="idx")
@@ -26,17 +26,18 @@
       v-card-actions
         v-spacer
         v-btn(@click="cancel" depressed color="grey darken-2" dark) キャンセル
-        v-btn(@click="emit" depressed :color="color" :disabled="!editting || !canSubmit" :dark="editting && canSubmit") {{ emitBtnText }}
+        v-btn(@click="emit" depressed :color="color" :disabled="!editting || !canSubmit" 
+            :loading="emiting" :dark="editting && canSubmit") {{ emitBtnText }}
 
     v-dialog(v-model="showConfirm"  max-width="300px")
-      ConfirmCard(emitBtnText="delete" @cancel="showConfirm=false" @emit="deleteHandler")
+      ConfirmCard(emitBtnText="削除" :loading.sync="emiting" @cancel="showConfirm=false" @emit="deleteHandler")
         template(#title) {{ confirm.title }}
         template(#text) {{ confirm.text }}
 
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop, PropSync, Watch } from 'vue-property-decorator'
 import { CalendarEvent } from '../models/types'
 import { isLoginUser, isAdmin } from "@/plugins/utils"
 import { authStore } from '../store'
@@ -70,6 +71,9 @@ export default class Calendar extends Vue {
 
   @Prop({type: Boolean, default: false})
   isNew!: boolean
+
+  @PropSync("loading", {type: Boolean, default: false})
+  emiting!: boolean
 
   beforeMount() {
     this.initDateInfo()
@@ -204,6 +208,7 @@ export default class Calendar extends Vue {
   }
 
   emit() {
+    this.emiting = true
     if(this.isNew) this.$emit("created", _.mapValues(this.dateInfos, this.formatDate))
     else if(this.isDelete) this.$emit("deleted", this.event.rsvnId)
     else {

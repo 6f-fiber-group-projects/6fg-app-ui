@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { equipStore } from "@/store/index"
+import { equipStore,appStore } from "@/store/index"
 import EquipmentCard from "@/components/EquipmentCard.vue"
 import EquipmentDetailCard from "@/components/EquipmentDetailCard.vue"
 import _ from "lodash"
@@ -24,7 +24,12 @@ export default class EquipmentList extends Vue {
   private fetchEquipId = 0
 
   mounted() {
+    appStore.onLoading()
     this.fetchEquipId = setInterval(this.fetchEquips, 5000)
+  }
+
+  updated() {
+    appStore.offLoading()
   }
 
   beforeDestroy() {

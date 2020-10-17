@@ -4,7 +4,7 @@ import createPersistedState from "vuex-persistedstate"
 import { getModule } from 'vuex-module-decorators'
 
 import AuthModule from "./auth"
-import NotificationModule from "./notification"
+import AppModule from "./app"
 import EquipmentModule from "./equip"
 import UserModule from "./user"
 
@@ -18,7 +18,7 @@ const store = new Vuex.Store({
   plugins: [createPersistedState(persistOptions())],
   modules: {
     AuthModule,
-    NotificationModule,
+    AppModule,
     EquipmentModule,
     UserModule
   }
@@ -26,6 +26,6 @@ const store = new Vuex.Store({
 
 export default store
 export const authStore = getModule(AuthModule, store)
-export const notificationStore = getModule(NotificationModule, store)
+export const appStore = getModule(AppModule, store)
 export const equipStore = getModule(EquipmentModule, store)
 export const userStore = getModule(UserModule, store)

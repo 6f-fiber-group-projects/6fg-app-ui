@@ -10,12 +10,12 @@
             v-icon(v-if="!isLoginUser(item.id) && isAdmin" small @click="edit(item.id)") mdi-pencil
 
     v-dialog(v-model="showUserCreate" max-width="600px")
-      UserDetailCard(:isNew="isNewUser" :userId="userId" @produced="produced" @edited="edited" @cancel="closeUserCreate")
+      UserDetailCard(:isNew="isNewUser" :userId="userId" :loading.sync="emiting" @produced="produced" @edited="edited" @cancel="closeUserCreate")
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { userStore } from '../store'
+import { userStore, appStore } from '../store'
 import { UserCreate, UserUpdate } from '../models/types'
 import { isAdmin, isLoginUser } from "@/plugins/utils"
 import UserDetailCard from "@/components/UserDetailCard.vue"
@@ -34,11 +34,16 @@ export default class UserList extends Vue {
     { text: "編集", value: "actions", sortable: false, },
   ]
   private userId = 0
-
   private fetchUserId = 0
+  private emiting = false
 
   mounted() {
+    appStore.onLoading()
     this.fetchUserId = setInterval(this.fetchUsers, 5000)
+  }
+
+  updated() {
+    appStore.offLoading()
   }
 
   beforeDestroy() {
@@ -71,12 +76,14 @@ export default class UserList extends Vue {
 
   async produced(u: UserCreate) {
     await api.createUser(u)
+    .finally(() => this.emiting = false)
     await this.fetchUsers()
     this.closeUserCreate()
   }
 
   async edited(u: UserUpdate) {
     await api.updateUser(u)
+    .finally(() => this.emiting = false)
     await this.fetchUsers()
     this.closeUserCreate()
   }

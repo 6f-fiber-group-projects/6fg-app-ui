@@ -12,7 +12,7 @@
       v-card-actions
         v-spacer
         v-btn(@click="cancel" depressed color="grey darken-2" dark) キャンセル
-        v-btn(@click="emit" depressed :color="emitBtnColor" :disabled="!authorized") {{ emitBtnText }}
+        v-btn(@click="emit" depressed :color="emitBtnColor" :loading="emiting" :disabled="!authorized") {{ emitBtnText }}
 
     v-dialog(v-model="showConfirm"  max-width="300px")
       ConfirmCard(emitBtnText="削除" @cancel="showConfirm=false" @emit="deleteHandler")
@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, PropSync } from 'vue-property-decorator'
 import { authStore } from '../store'
 import ConfirmCard from "@/components/ConfirmCard.vue"
 
@@ -31,7 +31,6 @@ export default class EquipmentDetailCard extends Vue {
   private showConfirm = false
   private confirm = {title: "", text: ""}
 
-
   @Prop({type: String, default: ""})
   name!: string
 
@@ -40,6 +39,9 @@ export default class EquipmentDetailCard extends Vue {
 
   @Prop({type: Boolean, default: true})
   adminOnly!: boolean
+
+  @PropSync("loading", {type: Boolean, default: false})
+  emiting!: boolean
 
   mounted() {
     this.equipName = this.name
@@ -74,6 +76,7 @@ export default class EquipmentDetailCard extends Vue {
   }
 
   emit() {
+    this.emiting = true
     this.$emit("emit", this.equipName)
   }
 

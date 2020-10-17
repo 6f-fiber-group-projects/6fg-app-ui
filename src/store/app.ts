@@ -4,19 +4,34 @@ import store from "@/store/index"
 import _ from "lodash"
 
 @Module({ store, name: 'notification' })
-export default class NotificationModule extends VuexModule {
-  private list: Notification[] = []
+export default class AppModule extends VuexModule {
+  private notifications: Notification[] = []
+  private loading = false
 
   get getNotifications() {
-    return this.list
+    return this.notifications
+  }
+
+  get isLoading() {
+    return this.loading
   }
 
   @Mutation
-  update(list: Notification[]) {
-    this.list = list
+  updateNotifications(notifications: Notification[]) {
+    this.notifications = notifications
   }
 
-  @Action({ rawError: true, commit: "update" })
+  @Mutation
+  onLoading(){
+    return this.loading = true
+  }
+
+  @Mutation
+  offLoading(){
+    return this.loading = false
+  }
+
+  @Action({ rawError: true, commit: "updateNotifications" })
   error(msg: string): Notification[] {
     const n = new Notification({
       id: new Date().valueOf(),
@@ -27,7 +42,7 @@ export default class NotificationModule extends VuexModule {
     return [...this.getNotifications, n]
   }
 
-  @Action({ rawError: true, commit: "update" })
+  @Action({ rawError: true, commit: "updateNotifications" })
   info(msg: string): Notification[] {
     const n = new Notification({
       id: new Date().valueOf(),
@@ -38,7 +53,7 @@ export default class NotificationModule extends VuexModule {
     return [...this.getNotifications, n]
   }
 
-  @Action({ rawError: true, commit: "update" })
+  @Action({ rawError: true, commit: "updateNotifications" })
   remove(id: number): Notification[] {
     return _.filter(this.getNotifications, obj => obj.id !== id)
   }

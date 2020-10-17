@@ -18,12 +18,12 @@
                 td {{ user.auth }}
 
     v-dialog(v-model="showUserEdit" max-width="600px")
-      UserDetailCard(:userId="userId" @edited="edited" @cancel="closeUserCreate")
+      UserDetailCard(:userId="userId" :loading.sync="emiting" @edited="edited" @cancel="closeUserCreate")
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { authStore } from '../store'
+import { authStore, appStore } from '../store'
 import UserDetailCard from "@/components/UserDetailCard.vue"
 import { UserUpdate } from '../models/types'
 import api from "@/api" 
@@ -32,9 +32,15 @@ import api from "@/api"
 export default class User extends Vue {
   private userId = 0
   private showUserEdit = false
+  private emiting = false
 
   mounted() {
+    appStore.onLoading()
     this.userId = parseInt(this.$route.params.userId)
+  }
+
+  updated() {
+    appStore.offLoading()
   }
 
   get user() {
@@ -47,6 +53,8 @@ export default class User extends Vue {
 
   async edited(u: UserUpdate) {
     await api.updateUser(u)
+    .then(d => authStore.setUserInfo(d.data.message))
+    .finally(() => this.emiting = false)
     this.closeUserCreate()
   }
 

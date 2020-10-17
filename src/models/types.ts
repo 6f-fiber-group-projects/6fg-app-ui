@@ -1,5 +1,10 @@
 import { UserInfo } from "@/models"
 
+export type LoginInfo = {
+  email: string
+  password: string
+}
+
 export type User = {
   id: number
   auth_id: number
