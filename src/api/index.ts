@@ -1,5 +1,6 @@
 import axios from "axios"
 import {
+  LoginInfo,
   UserCreate,
   UserUpdate,
   EquipmentReservationUpdate,
@@ -9,6 +10,14 @@ import {
 } from "@/models/types"
 
 export default class Api {
+  static async login(params: LoginInfo) {
+    return await axios.post("auth", params)
+  }
+
+  static async logout() {
+    return axios.get("auth/logout")
+  }
+
   static async getUser(): Promise<any> {
     return await axios.get("user")
   }
@@ -31,6 +40,7 @@ export default class Api {
 
   static async updateEquip(params: EquipmentUpdate): Promise<any> {
     return await axios.put(`equipment/${params.id}`, params)
+      .catch((e) => console.log({e}))
   }
 
   static async updateEquipStatus(params: EquipmentStautsUpdate): Promise<any> {

@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, PropSync } from 'vue-property-decorator'
 import { 
   isAdmin,
   isLoginUser,
@@ -45,6 +45,9 @@ export default class UserDetailCard extends Vue {
 
   @Prop({type: Number, default: 0})
   userId!: number
+
+  @PropSync("loading", {type: Boolean, default: false})
+  emiting!: boolean
 
   mounted() {
     this.form = this.$refs.form as Vue
@@ -147,6 +150,7 @@ export default class UserDetailCard extends Vue {
   }
 
   emit() {
+    this.emiting = true
     if(!this.form.validate()) return
     if(this.isNew) this.$emit("produced", this.userInfo)
     else this.$emit("edited", this.userInfo)

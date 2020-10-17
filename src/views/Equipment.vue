@@ -8,16 +8,16 @@
       v-col(cols=12)
         v-btn.mr-3(@click="showEquipDetail=true" rounded color="success" dark) 編集
         v-btn.mr-3(@click="book" rounded color="primary" dark) 予約
-        v-btn(@click="changeStatus" rounded :color="useBtnColor" :disabled="!canChangeStatus") {{ useBtnText }}
+        v-btn(@click="changeStatus" rounded :color="useBtnColor" :loading="changingStatus" :disabled="!canChangeStatus") {{ useBtnText }}
       v-col(cols=12)
         Calendar(:events="events" :equipId="equipId" @eventSelected="calendarEventHandler")
 
     v-dialog(v-model="showCalenderDetail" persistent max-width="600px")
-      CalendarDetailCard(:event="selectedCalendarEvent" :rsvnEvents="events" :isNew="isNewCalendarEvent"
+      CalendarDetailCard(:event="selectedCalendarEvent" :rsvnEvents="events" :isNew="isNewCalendarEvent" :loading.sync="emiting"
           @close="showCalenderDetail=false" @created="createRsvn" @edited="updateRsvn" @deleted="deleteRsvn")
 
     v-dialog(v-model="showEquipDetail" max-width="600px")
-      EquipmentDetailCard(:name="equipName" @cancel="showEquipDetail=false" @emit="updateEquipInfo" @delete="deleteEquip")
+      EquipmentDetailCard(:name="equipName" :loading.sync="emiting" @cancel="showEquipDetail=false" @emit="updateEquipInfo" @delete="deleteEquip")
 </template>
 
 <script lang="ts">
@@ -56,6 +56,8 @@ export default class Equipment extends Vue {
   private fetchUserId = 0
   private fetchEquipId = 0
   private fetchEquipRsvnId = 0
+  private changingStatus = false
+  private emiting = false
 
   mounted() {
     appStore.onLoading()
@@ -184,47 +186,58 @@ export default class Equipment extends Vue {
 
   async updateEquipInfo(equipName: string) {
     if(!this.equip) return
+
     await api.updateEquip({
       id: this.equipId,
       name: equipName,
       status: this.equip.status
     })
+    .finally(() => this.emiting = false)
+
+    await this.fetchEquips()
     this.showEquipDetail = false
-    this.fetchEquips()
   }
 
   async changeStatus() {
     if(!this.equip || !authStore.getUserInfo) return
+
+    this.changingStatus = true
     await api.updateEquipStatus({
       equipId: this.equipId,
       equipStatus: (this.equip.status + 1) % 2,
       userId: authStore.getUserInfo.id,
       rsvnId: undefined
     })
-    this.showEquipDetail = false
-    this.fetchEquips()
+    .finally(() => this.changingStatus = false)
+
+    await this.fetchEquips()
   }
 
   async deleteEquip() {
     await api.deleteEquip(this.equipId)
+    .finally(() => this.emiting = false)
     this.showEquipDetail = false
     this.$router.push("/")
   }
 
   async createRsvn(rsvnInfo: RsvnInfo) {
     if (!authStore.getUserInfo) return
+
     await api.createRsvn({
       userId: authStore.getUserInfo.id,
       equipId: this.equipId,
       startDate: rsvnInfo.start,
       endDate: rsvnInfo.end
     })
+    .finally(() => this.emiting = false)
+
     await this.fetchRsvns()
     this.showCalenderDetail = false
   }
 
   async updateRsvn(rsvnInfo: RsvnInfo) {
     if(!rsvnInfo.userId || !rsvnInfo.id) return
+
     await api.updateRsvn({
       id: rsvnInfo.id,
       userId: rsvnInfo.userId,
@@ -232,12 +245,15 @@ export default class Equipment extends Vue {
       startDate: rsvnInfo.start,
       endDate: rsvnInfo.end
     })
+    .finally(() => this.emiting = false)
+
     await this.fetchRsvns()
     this.showCalenderDetail = false
   }
 
   async deleteRsvn(rsvnId: number) {
     await api.deleteRsvn({id: rsvnId})
+    .finally(() => this.emiting = false)
     await this.fetchRsvns()
     this.showCalenderDetail = false
   }

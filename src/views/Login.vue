@@ -7,7 +7,7 @@
           v-text-field(v-model="loginInfo.email" label="メールアドレス")
           v-text-field(v-model="loginInfo.password" type="password" label="パスワード")
         v-card-actions.justify-center
-          v-btn.px-10.primary(rounded @click="login" :disabled="!canLogin") ログイン
+          v-btn.px-10.primary(rounded @click="login" :loading="logingIn" :disabled="!canLogin") ログイン
 </template>
 
 <script lang="ts">
@@ -16,15 +16,18 @@ import { authStore } from "@/store/index"
 
 @Component({})
 export default class Login extends Vue {
-  loginInfo: {email: string; password: string } = { email: "", password: "" }
+  private loginInfo = { email: "", password: "" }
+  private logingIn = false
 
   get canLogin() {
     return this.loginInfo.email && this.loginInfo.password
   }
 
   login() {
+    this.logingIn = true
     authStore.login(this.loginInfo)
     .then(() => this.letIn())
+    .finally(() => this.logingIn = false)
   }
 
   letIn() {

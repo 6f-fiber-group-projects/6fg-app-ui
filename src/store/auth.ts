@@ -1,9 +1,10 @@
 import { Module, VuexModule, Mutation, Action, } from "vuex-module-decorators"
 import { UserInfo } from "../models/index"
+import { LoginInfo } from '@/models/types'
 import router from "@/router"
 import store from "@/store/index"
 import { appStore } from "@/store/index"
-import axios from "axios"
+import api from "@/api"
 
 @Module({ store, name: 'auth' })
 export default class AuthModule extends VuexModule {
@@ -24,8 +25,8 @@ export default class AuthModule extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async login(params: {email: string; password: string}) {
-    await axios.post("auth", params)
+  async login(params: LoginInfo) {
+    await api.login(params)
     .then(d => this.context.commit("setUserInfo", new UserInfo(d.data.message)))
     .then(() => appStore.info("Successfully login"))
     .catch(() => {
@@ -36,9 +37,7 @@ export default class AuthModule extends VuexModule {
 
   @Action({ rawError: true })
   async logout() {
-    await axios.get("auth/logout")
-    .then(() => appStore.info("Successfully logout"))
-    .catch((e) => console.log(e))
+    await api.logout()
     .finally(() => {
       this.context.commit("setUserInfo", null)
       router.push("/login")
