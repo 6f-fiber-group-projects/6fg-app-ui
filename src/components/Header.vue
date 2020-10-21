@@ -19,7 +19,7 @@
             v-list-item-title ユーザー一覧
       template(v-slot:append)
         .pa-2
-          v-btn(block dark color="black" @click="logout" ) Logout
+          v-btn(block dark color="black" height="100%" @click="logout") Logout
 
     v-app-bar(app color="primary" dark)
       v-app-bar-nav-icon(v-if="isLogin" @click.stop="drawer = !drawer")
