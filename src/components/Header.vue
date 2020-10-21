@@ -17,9 +17,8 @@
             v-icon people
           v-list-item-content
             v-list-item-title ユーザー一覧
-      template(v-slot:append height="100%")
-        .pa-2
-          v-btn(block dark color="black" @click="logout") Logout
+
+      v-btn(fixed bottom dark color="black" @click="logout") Logout
 
     v-app-bar(app color="primary" dark)
       v-app-bar-nav-icon(v-if="isLogin" @click.stop="drawer = !drawer")
@@ -60,3 +59,11 @@ export default class Header extends Vue {
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+  .v-navigation-drawer__content
+    .v-btn
+      width 90%
+      left 50%
+      transform translateX(-50%)
+</style>
