@@ -34,20 +34,15 @@ export default class UserList extends Vue {
     { text: "編集", value: "actions", sortable: false, },
   ]
   private userId = 0
-  private fetchUserId = 0
   private emiting = false
 
-  mounted() {
-    appStore.onLoading()
-    this.fetchUserId = setInterval(this.fetchUsers, 5000)
-  }
-
-  updated() {
-    appStore.offLoading()
+  async mounted() {
+    await this.initialLoad()
+    userStore.subscribe()
   }
 
   beforeDestroy() {
-    clearInterval(this.fetchUserId)
+    userStore.unsubscribe()
   }
 
   get isAdmin() {
@@ -56,6 +51,12 @@ export default class UserList extends Vue {
 
   get users() {
     return _.sortBy(userStore.getUsers, "id")
+  }
+
+  async initialLoad() {
+    appStore.onLoading()
+    await this.fetchUsers()
+    appStore.offLoading()
   }
 
   async fetchUsers() {

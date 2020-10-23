@@ -24,7 +24,7 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { EquipmentInfo, EquipmentRsvnInfo } from '../models'
 import { EquipmentUpdate, CalendarEvent } from '../models/types'
-import { userStore, authStore, appStore } from '../store'
+import { userStore, authStore, appStore, equipStore } from '../store'
 import { isLoginUser, isAdmin } from "@/plugins/utils"
 import Calendar from "@/components/Calendar.vue"
 import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
@@ -53,16 +53,16 @@ export default class Equipment extends Vue {
   private showCalenderDetail = false
   private showEquipDetail = false
   private selectedCalendarEventInfo: any = {}
-  private fetchUserId = 0
-  private fetchEquipId = 0
   private fetchEquipRsvnId = 0
   private changingStatus = false
   private emiting = false
 
   mounted() {
-    appStore.onLoading()
     this.equipId = parseInt(this.$route.params.equipId)
-    this.setIntervals()
+    appStore.onLoading()
+    userStore.subscribe()
+    equipStore.subscribe()
+    this.fetchEquipRsvnId = setInterval(this.fetchRsvns, 5000)
   }
 
   updated() {
@@ -70,8 +70,8 @@ export default class Equipment extends Vue {
   }
 
   beforeDestroy() {
-    clearInterval(this.fetchUserId)
-    clearInterval(this.fetchEquipId)
+    userStore.unsubscribe()
+    equipStore.unsubscribe()
     clearInterval(this.fetchEquipRsvnId)
   }
 
@@ -130,12 +130,6 @@ export default class Equipment extends Vue {
   get canStop() {
     if(!this.equip) return false
     return this.equip && (isLoginUser(this.equip.userId) || isAdmin())
-  }
-
-  setIntervals() {
-    this.fetchUserId = setInterval(this.fetchUsers, 5000)
-    this.fetchEquipId = setInterval(this.fetchEquips, 5000)
-    this.fetchEquipRsvnId = setInterval(this.fetchRsvns, 5000)
   }
 
   currentReservation() {
