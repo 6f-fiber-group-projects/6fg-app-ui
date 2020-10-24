@@ -54,18 +54,12 @@ export default class Equipment extends Vue {
   private changingStatus = false
   private emiting = false
 
-  mounted() {
-    appStore.onLoading()
-
+  async mounted() {
     this.equipId = parseInt(this.$route.params.equipId)
-    userStore.fetchUsers()
+    await this.initialLoad()
 
     equipStore.subscribe()
     equipStore.subscribeRsvns(this.equipId)
-  }
-
-  updated() {
-    appStore.offLoading()
   }
 
   beforeDestroy() {
@@ -136,6 +130,12 @@ export default class Equipment extends Vue {
 
   get reservations(): EquipmentRsvnInfo[] {
     return equipStore.getEquipRsvnsInfo
+  }
+
+  async initialLoad() {
+    appStore.onLoading()
+    await userStore.fetchUsers()
+    appStore.offLoading()
   }
 
   currentReservation() {
