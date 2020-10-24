@@ -24,7 +24,7 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { EquipmentInfo, EquipmentRsvnInfo } from '../models'
 import { EquipmentUpdate, CalendarEvent } from '../models/types'
-import { userStore, authStore, appStore } from '../store'
+import { userStore, authStore, appStore, equipStore } from '../store'
 import { isLoginUser, isAdmin } from "@/plugins/utils"
 import Calendar from "@/components/Calendar.vue"
 import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
@@ -48,31 +48,23 @@ type RsvnInfo = {
 }})
 export default class Equipment extends Vue {
   private equipId = 0
-  private equip: EquipmentInfo | null = null
-  private reservations: EquipmentRsvnInfo[] = []
   private showCalenderDetail = false
   private showEquipDetail = false
   private selectedCalendarEventInfo: any = {}
-  private fetchUserId = 0
-  private fetchEquipId = 0
-  private fetchEquipRsvnId = 0
   private changingStatus = false
   private emiting = false
 
-  mounted() {
-    appStore.onLoading()
+  async mounted() {
     this.equipId = parseInt(this.$route.params.equipId)
-    this.setIntervals()
-  }
+    await this.initialLoad()
 
-  updated() {
-    appStore.offLoading()
+    equipStore.subscribe()
+    equipStore.subscribeRsvns(this.equipId)
   }
 
   beforeDestroy() {
-    clearInterval(this.fetchUserId)
-    clearInterval(this.fetchEquipId)
-    clearInterval(this.fetchEquipRsvnId)
+    equipStore.unsubscribe()
+    equipStore.unsubscribeRsvns()
   }
 
   get status() {
@@ -132,10 +124,18 @@ export default class Equipment extends Vue {
     return this.equip && (isLoginUser(this.equip.userId) || isAdmin())
   }
 
-  setIntervals() {
-    this.fetchUserId = setInterval(this.fetchUsers, 5000)
-    this.fetchEquipId = setInterval(this.fetchEquips, 5000)
-    this.fetchEquipRsvnId = setInterval(this.fetchRsvns, 5000)
+  get equip(): EquipmentInfo {
+    return equipStore.currentEquipInfo(this.equipId) 
+  }
+
+  get reservations(): EquipmentRsvnInfo[] {
+    return equipStore.getEquipRsvnsInfo
+  }
+
+  async initialLoad() {
+    appStore.onLoading()
+    await userStore.fetchUsers()
+    appStore.offLoading()
   }
 
   currentReservation() {
@@ -144,20 +144,6 @@ export default class Equipment extends Vue {
       const now = new Date()
       return r.start <= now && now <= r.end
     })
-  }
-
-  async fetchEquips() {
-    await api.getEquipById(this.equipId)
-    .then(d => this.equip = new EquipmentInfo(d.data.message))
-  }
-
-  async fetchRsvns() {
-    await api.getRsvnByEquipId(this.equipId)
-    .then(d => this.reservations = _.map(d.data.message, rsvn => new EquipmentRsvnInfo(rsvn)))
-  }
-
-  async fetchUsers() {
-    await userStore.fetchUsers()
   }
 
   setEvent(r: EquipmentRsvnInfo): CalendarEvent {
@@ -194,7 +180,7 @@ export default class Equipment extends Vue {
     })
     .finally(() => this.emiting = false)
 
-    await this.fetchEquips()
+    await equipStore.fetchEquipsInfo()
     this.showEquipDetail = false
   }
 
@@ -210,7 +196,7 @@ export default class Equipment extends Vue {
     })
     .finally(() => this.changingStatus = false)
 
-    await this.fetchEquips()
+    await equipStore.fetchEquipsInfo()
   }
 
   async deleteEquip() {
@@ -231,7 +217,7 @@ export default class Equipment extends Vue {
     })
     .finally(() => this.emiting = false)
 
-    await this.fetchRsvns()
+    await equipStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 
@@ -247,14 +233,14 @@ export default class Equipment extends Vue {
     })
     .finally(() => this.emiting = false)
 
-    await this.fetchRsvns()
+    await equipStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 
   async deleteRsvn(rsvnId: number) {
     await api.deleteRsvn({id: rsvnId})
     .finally(() => this.emiting = false)
-    await this.fetchRsvns()
+    await equipStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 }
