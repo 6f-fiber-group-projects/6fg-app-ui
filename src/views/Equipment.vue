@@ -48,21 +48,20 @@ type RsvnInfo = {
 }})
 export default class Equipment extends Vue {
   private equipId = 0
-  private equip: EquipmentInfo | null = null
-  private reservations: EquipmentRsvnInfo[] = []
   private showCalenderDetail = false
   private showEquipDetail = false
   private selectedCalendarEventInfo: any = {}
-  private fetchEquipRsvnId = 0
   private changingStatus = false
   private emiting = false
 
   mounted() {
-    this.equipId = parseInt(this.$route.params.equipId)
     appStore.onLoading()
-    userStore.subscribe()
+
+    this.equipId = parseInt(this.$route.params.equipId)
+    userStore.fetchUsers()
+
     equipStore.subscribe()
-    this.fetchEquipRsvnId = setInterval(this.fetchRsvns, 5000)
+    equipStore.subscribeRsvns(this.equipId)
   }
 
   updated() {
@@ -70,9 +69,8 @@ export default class Equipment extends Vue {
   }
 
   beforeDestroy() {
-    userStore.unsubscribe()
     equipStore.unsubscribe()
-    clearInterval(this.fetchEquipRsvnId)
+    equipStore.unsubscribeRsvns()
   }
 
   get status() {
@@ -132,26 +130,20 @@ export default class Equipment extends Vue {
     return this.equip && (isLoginUser(this.equip.userId) || isAdmin())
   }
 
+  get equip(): EquipmentInfo {
+    return equipStore.currentEquipInfo(this.equipId) 
+  }
+
+  get reservations(): EquipmentRsvnInfo[] {
+    return equipStore.getEquipRsvnsInfo
+  }
+
   currentReservation() {
     // Fix me
     return _.find(this.reservations, (r) => {
       const now = new Date()
       return r.start <= now && now <= r.end
     })
-  }
-
-  async fetchEquips() {
-    await api.getEquipById(this.equipId)
-    .then(d => this.equip = new EquipmentInfo(d.data.message))
-  }
-
-  async fetchRsvns() {
-    await api.getRsvnByEquipId(this.equipId)
-    .then(d => this.reservations = _.map(d.data.message, rsvn => new EquipmentRsvnInfo(rsvn)))
-  }
-
-  async fetchUsers() {
-    await userStore.fetchUsers()
   }
 
   setEvent(r: EquipmentRsvnInfo): CalendarEvent {
@@ -188,7 +180,7 @@ export default class Equipment extends Vue {
     })
     .finally(() => this.emiting = false)
 
-    await this.fetchEquips()
+    await equipStore.fetchEquipsInfo()
     this.showEquipDetail = false
   }
 
@@ -204,7 +196,7 @@ export default class Equipment extends Vue {
     })
     .finally(() => this.changingStatus = false)
 
-    await this.fetchEquips()
+    await equipStore.fetchEquipsInfo()
   }
 
   async deleteEquip() {
@@ -225,7 +217,7 @@ export default class Equipment extends Vue {
     })
     .finally(() => this.emiting = false)
 
-    await this.fetchRsvns()
+    await equipStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 
@@ -241,14 +233,14 @@ export default class Equipment extends Vue {
     })
     .finally(() => this.emiting = false)
 
-    await this.fetchRsvns()
+    await equipStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 
   async deleteRsvn(rsvnId: number) {
     await api.deleteRsvn({id: rsvnId})
     .finally(() => this.emiting = false)
-    await this.fetchRsvns()
+    await equipStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 }

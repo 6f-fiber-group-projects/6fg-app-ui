@@ -30,6 +30,10 @@ export default class Api {
     return await axios.put(`user/${params.id}`, params)
   }
 
+  static async getEquips(): Promise<any> {
+    return await axios.get("equipment")
+  }
+
   static async getEquipById(equipId: number): Promise<any> {
     return await axios.get(`equipment/${equipId}`)
   }
