@@ -135,6 +135,7 @@ export default class Equipment extends Vue {
   async initialLoad() {
     appStore.onLoading()
     await userStore.fetchUsers()
+    await equipStore.fetchEquipRsvnsInfo(this.equipId)
     appStore.offLoading()
   }
 
