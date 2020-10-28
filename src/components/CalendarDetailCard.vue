@@ -251,8 +251,7 @@ export default class Calendar extends Vue {
   formatDate(d: DateInfo) {
     const hourStr = d.hour.toString().padStart(2, "0")
     const minuteStr = d.minute.toString().padStart(2, "0")
-    console.log(`${d.date}T${hourStr}:${minuteStr}:00+0900`)
-    return new Date(`${d.date}T${hourStr}:${minuteStr}:00+0900`)
+    return new Date(`${d.date}T${hourStr}:${minuteStr}:00+09:00`)
   }
 
   splitDatetime(dateTime: Date) {
