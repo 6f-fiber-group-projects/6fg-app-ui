@@ -175,7 +175,7 @@ export default class Calendar extends Vue {
     if(!this.isNew && !this.canManage) return true // not check unmanageable case
     if(!this.dateInfos.start) return "Invalid start date info"
     const isAfter = this.formatDate(this.dateInfos.start).getTime() > (new Date().getTime() - 60*1000)
-    if(!isAfter) console.log({isAfter, dataInfos: this.dateInfos})
+    if(!isAfter) console.log({isAfter, dataInfos: this.dateInfos, fomattedStart: this.formatDate(this.dateInfos.start).getTime(), now: new Date().getTime() - 60*1000})
     return isAfter
   }
 
@@ -183,7 +183,7 @@ export default class Calendar extends Vue {
     if(!this.isNew && !this.canManage) return true // not check unmanageable case
     if(!this.dateInfos.start || !this.dateInfos.end) return "Invalid date info"
     const isAfter = this.formatDate(this.dateInfos.end).getTime() > this.formatDate(this.dateInfos.start).getTime()
-    if(!isAfter) console.log({isAfter, dataInfos: this.dateInfos})
+    if(!isAfter) console.log({isAfter, dataInfos: this.dateInfos, fomattedEnd: this.formatDate(this.dateInfos.end).getTime(), fomattedStart: this.formatDate(this.dateInfos.start).getTime()})
     return isAfter
   }
 
