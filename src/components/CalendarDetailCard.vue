@@ -174,13 +174,17 @@ export default class Calendar extends Vue {
   afterNow() {
     if(!this.isNew && !this.canManage) return true // not check unmanageable case
     if(!this.dateInfos.start) return "Invalid start date info"
-    return this.formatDate(this.dateInfos.start).getTime() > (new Date().getTime() - 60*1000)
+    const isAfter = this.formatDate(this.dateInfos.start).getTime() > (new Date().getTime() - 60*1000)
+    if(!isAfter) console.log(this.dateInfos)
+    return isAfter
   }
 
   afterStart() {
     if(!this.isNew && !this.canManage) return true // not check unmanageable case
     if(!this.dateInfos.start || !this.dateInfos.end) return "Invalid date info"
-    return this.formatDate(this.dateInfos.end).getTime() > this.formatDate(this.dateInfos.start).getTime()
+    const isAfter = this.formatDate(this.dateInfos.end).getTime() > this.formatDate(this.dateInfos.start).getTime()
+    if(!isAfter) console.log(this.dateInfos)
+    return isAfter
   }
 
   canBook(type: string) {
