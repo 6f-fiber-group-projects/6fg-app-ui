@@ -55,6 +55,10 @@ export default class Api {
     return await axios.delete(`equipment/${id}`)
   }
 
+  static async getRsvn(): Promise<any> {
+    return await axios.get(`reservation`)
+  }
+
   static async getRsvnByEquipId(equipId: number): Promise<any> {
     // TODO limit fetch data number
     return await axios.get(`reservation/equipment?equipId=${equipId}`)

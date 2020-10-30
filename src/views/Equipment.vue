@@ -24,7 +24,7 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { EquipmentInfo, EquipmentRsvnInfo } from '../models'
 import { EquipmentUpdate, CalendarEvent } from '../models/types'
-import { userStore, authStore, appStore, equipStore } from '../store'
+import { userStore, authStore, appStore, equipStore, equipReservationStore } from '../store'
 import { isLoginUser, isAdmin } from "@/plugins/utils"
 import Calendar from "@/components/Calendar.vue"
 import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
@@ -59,12 +59,14 @@ export default class Equipment extends Vue {
     await this.initialLoad()
 
     equipStore.subscribe()
-    equipStore.subscribeRsvns(this.equipId)
+    equipReservationStore.subscribe(this.equipId)
+    // equipStore.subscribeRsvns(this.equipId)
   }
 
   beforeDestroy() {
     equipStore.unsubscribe()
-    equipStore.unsubscribeRsvns()
+    equipReservationStore.unsubscribe()
+    // equipStore.unsubscribeRsvns()
   }
 
   get status() {
@@ -129,13 +131,13 @@ export default class Equipment extends Vue {
   }
 
   get reservations(): EquipmentRsvnInfo[] {
-    return equipStore.getEquipRsvnsInfo
+    return equipReservationStore.getCurrentEquipRsvnsInfo
   }
 
   async initialLoad() {
     appStore.onLoading()
     await userStore.fetchUsers()
-    await equipStore.fetchEquipRsvnsInfo(this.equipId)
+    await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
     appStore.offLoading()
   }
 
@@ -218,7 +220,7 @@ export default class Equipment extends Vue {
     })
     .finally(() => this.emiting = false)
 
-    await equipStore.fetchEquipRsvnsInfo(this.equipId)
+    await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 
@@ -234,14 +236,14 @@ export default class Equipment extends Vue {
     })
     .finally(() => this.emiting = false)
 
-    await equipStore.fetchEquipRsvnsInfo(this.equipId)
+    await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 
   async deleteRsvn(rsvnId: number) {
     await api.deleteRsvn({id: rsvnId})
     .finally(() => this.emiting = false)
-    await equipStore.fetchEquipRsvnsInfo(this.equipId)
+    await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 }
