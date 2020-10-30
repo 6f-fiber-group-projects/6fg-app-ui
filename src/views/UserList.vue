@@ -4,7 +4,6 @@
       v-col(cols=12 v-if="isAdmin")
         v-btn.px-10.primary(rounded @click="create") 新規登録
       v-col(cols=12)
-       template
         v-data-table(:headers="headers" :items="users" item-key="name")
           template(v-slot:item.actions="{ item }")
             v-icon(v-if="!isLoginUser(item.id) && isAdmin" small @click="edit(item.id)") mdi-pencil

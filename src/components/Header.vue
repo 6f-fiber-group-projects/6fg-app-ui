@@ -17,6 +17,11 @@
             v-icon people
           v-list-item-content
             v-list-item-title ユーザー一覧
+        v-list-item(link to="/reservation" @click="selected")
+          v-list-item-action
+            v-icon mdi-format-list-bulleted-square
+          v-list-item-content
+            v-list-item-title 予約ー一覧
       template(v-slot:append)
         .pa-2
           v-btn(block dark color="black" @click="logout" ) Logout
@@ -32,7 +37,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { authStore, appStore} from "@/store/index"
+import { authStore, appStore } from "@/store/index"
 
 @Component({})
 export default class Header extends Vue {

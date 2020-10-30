@@ -39,7 +39,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, PropSync, Watch } from 'vue-property-decorator'
 import { CalendarEvent } from '../models/types'
-import { isLoginUser, isAdmin } from "@/plugins/utils"
+import { isLoginUser, isAdmin, splitDatetime } from "@/plugins/utils"
 import { authStore } from '../store'
 import ConfirmCard from "@/components/ConfirmCard.vue"
 import _ from "lodash"
@@ -151,7 +151,7 @@ export default class Calendar extends Vue {
 
   resetDate(){
     _.forEach(this.originalDateInfos, (val, key) => {
-      const dateTime = this.splitDatetime(val)
+      const dateTime = splitDatetime(val)
       this.dateInfos[key] = {
         date: dateTime.year + "-" + dateTime.month + "-" + dateTime.day,
         hour: parseInt(dateTime.hour),
@@ -252,15 +252,6 @@ export default class Calendar extends Vue {
     const hourStr = d.hour.toString().padStart(2, "0")
     const minuteStr = d.minute.toString().padStart(2, "0")
     return new Date(`${d.date}T${hourStr}:${minuteStr}:00+09:00`)
-  }
-
-  splitDatetime(dateTime: Date) {
-    const year   = dateTime.getFullYear().toString()
-    const month  = (dateTime.getMonth() + 1).toString().padStart(2, "0")
-    const day    = dateTime.getDate().toString().padStart(2, "0")
-    const hour   = dateTime.getHours().toString().padStart(2, "0")
-    const minute = dateTime.getMinutes().toString().padStart(2, "0")
-    return {year, month, day, hour, minute}
   }
 }
 </script>

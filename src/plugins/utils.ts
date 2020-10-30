@@ -52,3 +52,12 @@ export const existSameUserEmail = (userId: number, userEmail: string) => {
 export const validatePassword = (s: string) => {
   return s.length > 8 && s.match(/^(?=.*[a-z]+)(?=.*[A-Z]+)(?=.*[0-9]+)(?=.*[!"#$%&\-^¥\\@;:/<>+*{}[\]|~=]).*$/) != null
 }
+
+export const splitDatetime = (dateTime: Date) => {
+  const year   = dateTime.getFullYear().toString()
+  const month  = (dateTime.getMonth() + 1).toString().padStart(2, "0")
+  const day    = dateTime.getDate().toString().padStart(2, "0")
+  const hour   = dateTime.getHours().toString().padStart(2, "0")
+  const minute = dateTime.getMinutes().toString().padStart(2, "0")
+  return {year, month, day, hour, minute}
+}
