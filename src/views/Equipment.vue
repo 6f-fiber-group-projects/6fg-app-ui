@@ -55,18 +55,21 @@ export default class Equipment extends Vue {
   private emiting = false
 
   async mounted() {
-    this.equipId = parseInt(this.$route.params.equipId)
-    await this.initialLoad()
+    appStore.onLoading()
 
+    this.equipId = parseInt(this.$route.params.equipId)
     equipStore.subscribe()
     equipReservationStore.subscribe(this.equipId)
-    // equipStore.subscribeRsvns(this.equipId)
+
+    await userStore.fetchUsers()
+    await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
+
+    appStore.offLoading()
   }
 
   beforeDestroy() {
     equipStore.unsubscribe()
     equipReservationStore.unsubscribe()
-    // equipStore.unsubscribeRsvns()
   }
 
   get status() {
@@ -132,13 +135,6 @@ export default class Equipment extends Vue {
 
   get reservations(): EquipmentRsvnInfo[] {
     return equipReservationStore.getCurrentEquipRsvnsInfo
-  }
-
-  async initialLoad() {
-    appStore.onLoading()
-    await userStore.fetchUsers()
-    await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
-    appStore.offLoading()
   }
 
   currentReservation() {

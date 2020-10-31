@@ -23,8 +23,8 @@ export default class EquipmentList extends Vue {
   private showEquipDetail = false
 
   async mounted() {
-    await this.initialLoad()
     equipStore.subscribe()
+    await this.initialLoad()
   }
 
    beforeDestroy() {

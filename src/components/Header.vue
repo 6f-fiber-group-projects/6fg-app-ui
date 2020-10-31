@@ -30,9 +30,7 @@
       v-app-bar-nav-icon(v-if="isLogin" @click.stop="drawer = !drawer")
       router-link(to="/")
         v-toolbar-title.white--text(@click="selected") Fiber App
-
-    v-progress-linear.mt-16.mb-n16(v-show="loading" active indeterminate height="4")
-    div.mb-1(v-show="!loading")
+      v-progress-linear.white(v-show="loading" absolute bottom active indeterminate height="4")
 </template>
 
 <script lang="ts">

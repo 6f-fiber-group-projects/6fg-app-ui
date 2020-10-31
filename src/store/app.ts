@@ -23,12 +23,12 @@ export default class AppModule extends VuexModule {
 
   @Mutation
   onLoading(){
-    return this.loading = true
+    this.loading = true
   }
 
   @Mutation
   offLoading(){
-    return this.loading = false
+    this.loading = false
   }
 
   @Action({ rawError: true, commit: "updateNotifications" })
