@@ -8,7 +8,8 @@
       v-col(cols=12)
         v-btn.mr-3(@click="showEquipDetail=true" rounded color="success" dark) 編集
         v-btn.mr-3(@click="book" rounded color="primary" dark) 予約
-        v-btn(@click="changeStatus" rounded :color="useBtnColor" :loading="changingStatus" :disabled="!canChangeStatus") {{ useBtnText }}
+        v-btn.mr-3(@click="changeStatus" rounded :color="useBtnColor" :loading="changingStatus" :disabled="!canChangeStatus") {{ useBtnText }}
+        v-btn.mr-3(@click="generateEquipQR" rounded color="blue-grey" dark) QRコード表示
       v-col(cols=12)
         Calendar(:events="events" :equipId="equipId" @eventSelected="calendarEventHandler")
 
@@ -31,6 +32,7 @@ import CalendarDetailCard from "@/components/CalendarDetailCard.vue"
 import EquipmentDetailCard from "@/components/EquipmentDetailCard.vue"
 import api from "@/api"
 import _ from "lodash"
+import QRCode from "qrcode"
 
 const COLOR_CODE = ["success", "warning", "error"] //使用可能・予約中・使用中
 
@@ -241,6 +243,16 @@ export default class Equipment extends Vue {
     .finally(() => this.emiting = false)
     await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
+  }
+
+  async generateEquipQR() {
+    const img = new Image
+    const domain = process.env.NODE_ENV === "production"
+      ? "https://fibergroup.herokuapp.com"
+      : "http://localhost"
+    QRCode.toDataURL(`${domain}/equipment/${this.equipId}`, (_: string, url: string) => img.src = url)
+    const w = window.open("")
+    w?.document.write(img.outerHTML)
   }
 }
 </script>

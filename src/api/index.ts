@@ -55,6 +55,10 @@ export default class Api {
     return await axios.delete(`equipment/${id}`)
   }
 
+  static async generateEquipQR(equipId: number): Promise<any> {
+    return await axios.get(`equipment/${equipId}/qrcode`)
+  }
+
   static async getRsvn(): Promise<any> {
     return await axios.get(`reservation`)
   }
