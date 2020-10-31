@@ -2,8 +2,8 @@
   v-container
     v-row.page-wrapper.mx-auto.my-8
       v-col(cols=12)
-        v-chip-group(v-model="selectedTag" mandatory)
-          v-chip(v-for="(tag, idx) in selectTags" :key="idx" :color="color(idx)") {{ tag }}
+        v-tabs(v-model="selectedTag")
+          v-tab(v-for="(tag, idx) in selectTags" :key="idx" :color="color(idx)") {{ tag }}
       v-col(cols=12)
         v-data-table(:headers="headers" :items="selectedRsvns" item-key="id")
           template(v-slot:item.equipId="{ item }") {{ equipIdToName(item.equipId) }}
@@ -33,7 +33,7 @@ export default class ReservationList extends Vue {
     { text: "開始時刻", value: "start", sortable: false, },
     { text: "終了時刻", value: "end", sortable: false, },
   ]
-  private selectTags = ["All", "Before now", "After Now"]
+  private selectTags = ["予約状況", "予約履歴"]
   private selectedTag = 0
 
   async mounted() {
@@ -53,9 +53,8 @@ export default class ReservationList extends Vue {
   }
 
   get selectedRsvns() {
-    if(this.selectedTag === 1) return this.rsvnsBeforeNow
-    else if (this.selectedTag === 2) return this.rsvnsAfterNow
-    return this.rsvns
+    if(this.selectedTag === 0) return this.rsvnsAfterNow
+    return this.rsvnsBeforeNow
   }
 
   get rsvns() {
