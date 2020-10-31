@@ -36,8 +36,8 @@ export default class UserList extends Vue {
   private emiting = false
 
   async mounted() {
-    await this.initialLoad()
     userStore.subscribe()
+    await this.initialLoad()
   }
 
   beforeDestroy() {

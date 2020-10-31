@@ -19,7 +19,7 @@
               v-list-item(@click="setType(type)")
                 v-list-item-title {{ cap(type) }}
     v-sheet
-      v-calendar(v-model="focus" :type="type" :events="events" 
+      v-calendar(v-model="focus" :type="type" :events="events"
           @click:event="eventSelected" color="primary" ref="calendar")
 </template>
 

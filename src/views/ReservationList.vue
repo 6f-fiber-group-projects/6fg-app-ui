@@ -18,6 +18,7 @@ import {
   userStore,
   equipStore,
   equipReservationStore,
+  appStore,
 } from "@/store/index"
 import { splitDatetime } from "@/plugins/utils"
 import api from "@/api"
@@ -36,11 +37,15 @@ export default class ReservationList extends Vue {
   private selectedTag = 0
 
   async mounted() {
+    appStore.onLoading()
+
+    equipReservationStore.subscribeAll()
+
     await userStore.fetchUsers()
     await equipStore.fetchEquipsInfo()
     await equipReservationStore.fetchAllEquipRsvnsInfo()
 
-    equipReservationStore.subscribeAll()
+    appStore.offLoading()
   }
 
   destroyed() {
