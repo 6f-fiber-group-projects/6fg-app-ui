@@ -249,8 +249,12 @@ export default class Equipment extends Vue {
     const img = new Image
     const domain = process.env.NODE_ENV === "production"
       ? "https://fibergroup.herokuapp.com"
-      : "http://localhost"
-    QRCode.toDataURL(`${domain}/equipment/${this.equipId}`, (_: string, url: string) => img.src = url)
+      : "http://localhost:8080"
+    QRCode.toDataURL(
+      `${domain}/equipment/${this.equipId}`,
+      { errorCorrectionLevel: 'H' },
+      (_: string, url: string) => img.src = url
+    )
     const w = window.open("")
     w?.document.write(img.outerHTML)
   }

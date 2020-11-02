@@ -66,7 +66,7 @@ export default class ReservationList extends Vue {
   }
 
   get rsvnsAfterNow() {
-    return _.filter(this.rsvns, r => r.start > new Date())
+    return _.filter(this.rsvns, r => r.end > new Date())
   }
 
   userIdToName(userId: number) {

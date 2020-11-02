@@ -21,7 +21,7 @@
           v-list-item-action
             v-icon mdi-format-list-bulleted-square
           v-list-item-content
-            v-list-item-title 予約ー一覧
+            v-list-item-title 予約一覧
       template(v-slot:append)
         .pa-2
           v-btn(block dark color="black" @click="logout" ) Logout
