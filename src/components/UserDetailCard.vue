@@ -7,7 +7,7 @@
         v-form(ref="form" v-model="formValid" lazy-validation)
           v-text-field(v-model="name" label="ユーザー名" validate-on-blur :rules="nameRules()")
           v-text-field(v-model="email" label="メールアドレス" validate-on-blur :rules="emailRules()")
-          v-checkbox(v-if="!isNew" v-model="editPassword" @click="eiditPasswordClicked" label="パスワードを変更する")
+          //- v-checkbox(v-if="!isNew" v-model="editPassword" @click="eiditPasswordClicked" label="パスワードを変更する")
           v-text-field(v-model="password" v-if="showEditPassword" label="パスワード" validate-on-blur :rules="passwordRules()")
           v-radio-group(v-if="!isNew" v-model="authId" :disabled="!canEditAuth")
             v-radio(v-for="n in 3" :key="n" :value="n" :label="authLabel(n)")
@@ -71,7 +71,8 @@ export default class UserDetailCard extends Vue {
   }
 
   get showEditPassword() {
-    return this.isNew || this.editPassword
+    // return this.isNew || this.editPassword
+    return true || this.isNew || this.editPassword
   }
 
   get passwordEdited() {
@@ -131,6 +132,7 @@ export default class UserDetailCard extends Vue {
 
   passwordRules() {
     return [
+      (v: string) => !this.isEmpty(v) || "パスワードを入力してください。",
       (v: string) => validatePassword(v) || "大文字、小文字、記号、数字を含む８文字以上のパスワードを作成してください。"
     ]
   }
