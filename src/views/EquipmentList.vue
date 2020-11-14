@@ -1,13 +1,18 @@
 <template lang="pug">
   .equipment
-    v-row
-      v-col(v-for="e in equipsInfo" :key="e.id" cols=12 sm=3)
+    v-row.mx-5
+      v-col(v-if="isAdmin" cols=12)
+        v-btn.my-5(rounded color="primary" dark @click="showEquipDetail=true") 新規登録
+      v-col(v-for="e in equipsInfo" :key="e.id" cols=12 sm=2)
         EquipmentCard(:equipInfo="e" @editted="equipStore.fetchEquipsInfo()")
-    v-btn(fixed right bottom fab dark color="primary" @click="showEquipDetail=true")
+    v-btn(fixed right bottom fab dark color="primary" @click="showMultiEquipmentReservation=true")
       v-icon add
 
     v-dialog(v-model="showEquipDetail" max-width="600px")
       EquipmentDetailCard(type="new" @cancel="showEquipDetail=false" @emit="create")
+
+    v-dialog(v-model="showMultiEquipmentReservation" max-width="600px")
+      MultiEquipmentReservationCard
 </template>
 
 <script lang="ts">
@@ -15,30 +20,41 @@ import { Vue, Component } from 'vue-property-decorator'
 import { equipStore, appStore } from "@/store/index"
 import EquipmentCard from "@/components/EquipmentCard.vue"
 import EquipmentDetailCard from "@/components/EquipmentDetailCard.vue"
+import MultiEquipmentReservationCard from "@/components/MultiEquipmentReservationCard.vue"
+import { isAdmin } from "@/plugins/utils"
 import _ from "lodash"
 import api from '../api'
 
-@Component({ components: { EquipmentCard, EquipmentDetailCard } })
+@Component({ components: { 
+  EquipmentCard,
+  EquipmentDetailCard,
+  MultiEquipmentReservationCard 
+} })
 export default class EquipmentList extends Vue {
   private showEquipDetail = false
+  private showMultiEquipmentReservation = false
 
   async mounted() {
     equipStore.subscribe()
     await this.initialLoad()
   }
 
-   beforeDestroy() {
+  beforeDestroy() {
     equipStore.unsubscribe()
+  }
+
+  get equipsInfo() {
+    return _.sortBy(equipStore.getEquipsInfo, i => i.name)
+  }
+
+  get isAdmin() {
+    return isAdmin()
   }
 
   async initialLoad() {
     appStore.onLoading()
     await this.fetchEquips()
     appStore.offLoading()
-  }
-
-  get equipsInfo() {
-    return _.sortBy(equipStore.getEquipsInfo, i => i.name)
   }
 
   async create(equipName: string) {

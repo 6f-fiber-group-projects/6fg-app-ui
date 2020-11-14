@@ -42,6 +42,7 @@ import { CalendarEvent } from '../models/types'
 import { isLoginUser, isAdmin, splitDatetime } from "@/plugins/utils"
 import { authStore } from '../store'
 import ConfirmCard from "@/components/ConfirmCard.vue"
+import Reservation from "@/plugins/reservation"
 import _ from "lodash"
 
 type DateInfo = {
@@ -62,12 +63,10 @@ export default class Calendar extends Vue {
   private showConfirm = false
   private confirm = {title: "", text: ""}
   private dateValidater: any = null
+  private rsvn = new Reservation()
 
   @Prop({type: Object, default: () => ({})})
   event!: CalendarEvent
-
-  @Prop({type: Array, default: () => ([])})
-  rsvnEvents!: CalendarEvent[]
 
   @Prop({type: Boolean, default: false})
   isNew!: boolean
@@ -129,7 +128,7 @@ export default class Calendar extends Vue {
 
   get canManage() {
     if(!this.dateInfos.end) return false
-    return this.formatDate(this.dateInfos.end).getDate() > new Date().getDate()
+    return this.rsvn.CanManageBook(this.formatDate(this.dateInfos.end))
   }
 
   initDateInfo() {
@@ -141,7 +140,7 @@ export default class Calendar extends Vue {
     let date: {start: Date; end: Date}
     if(Object.keys(e).length === 0) {
       const start = new Date()
-      const end = new Date
+      const end = new Date()
       end.setMinutes(end.getMinutes() + 30)
       date = {start, end}
     }
@@ -158,47 +157,14 @@ export default class Calendar extends Vue {
         minute: parseInt(dateTime.minute),
         showMenu: false,
         label: key === "start" ? "開始" : "終了",
-        rules: key === "start" 
-          ? [
-              () => this.afterNow() || "現在時刻より前の日時は指定できません",
-              () => this.canBook("start") || "予約時間がかぶっています"
-            ]
-          : [
-              () => this.afterStart() || "利用開始時刻より前の日時は指定できません",
-              () => this.canBook("end") || "予約時間がかぶっています"
-            ]
+        rules: this.rsvn.BookRules(
+          this.originalDateInfos.start,
+          this.originalDateInfos.end,
+          key,
+          this.event?.rsvnId
+        )
       }
     })
-  }
-
-  afterNow() {
-    if(!this.isNew && !this.canManage) return true // not check unmanageable case
-    if(!this.dateInfos.start) return "Invalid start date info"
-    return this.formatDate(this.dateInfos.start).getTime() > (new Date().getTime() - 60*1000)
-  }
-
-  afterStart() {
-    if(!this.isNew && !this.canManage) return true // not check unmanageable case
-    if(!this.dateInfos.start || !this.dateInfos.end) return "Invalid date info"
-    return this.formatDate(this.dateInfos.end).getTime() > this.formatDate(this.dateInfos.start).getTime()
-  }
-
-  canBook(type: string) {
-    if(!this.dateInfos.start || !this.dateInfos.end) return "Invalid date info"
-    const inputSt = this.formatDate(this.dateInfos.start).getTime()
-    const inputEd = this.formatDate(this.dateInfos.end).getTime()
-
-    for(const r of this.rsvnEvents) {
-      if(this.event && this.event.rsvnId === r.rsvnId) continue
-      const date = this.setDateInfo(r)
-      const st = date.start.getTime()
-      const ed = date.end.getTime()
-
-      if(type === "start" && (st < inputSt && inputSt < ed)) return false 
-      else if((st < inputEd && inputEd < ed) || (inputSt < st && ed < inputEd)) return false
-    }
-
-    return true
   }
 
   cancel() {

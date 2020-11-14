@@ -68,7 +68,7 @@ export default class Api {
     return await axios.get(`reservation/equipment?equipId=${equipId}`)
   }
 
-  static async createRsvn(params: EquipmentReservationUpdate): Promise <any> {
+  static async createRsvn(params: EquipmentReservationUpdate[]): Promise <any> {
     return await axios.post("reservation/equipment", params)
   }
 
