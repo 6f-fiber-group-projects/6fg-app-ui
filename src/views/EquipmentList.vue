@@ -12,7 +12,7 @@
       EquipmentDetailCard(type="new" @cancel="showEquipDetail=false" @emit="create")
 
     v-dialog(v-model="showMultiEquipmentReservation" max-width="600px")
-      MultiEquipmentReservationCard
+      MultiEquipmentReservationCard(@cancel="showMultiEquipmentReservation=false" @emit="createRsvns")
 </template>
 
 <script lang="ts">
@@ -24,6 +24,8 @@ import MultiEquipmentReservationCard from "@/components/MultiEquipmentReservatio
 import { isAdmin } from "@/plugins/utils"
 import _ from "lodash"
 import api from '../api'
+import { RsvnInfo } from '../models/types'
+import Reservation from '../plugins/reservation'
 
 @Component({ components: { 
   EquipmentCard,
@@ -33,6 +35,7 @@ import api from '../api'
 export default class EquipmentList extends Vue {
   private showEquipDetail = false
   private showMultiEquipmentReservation = false
+  private rsvn = new Reservation()
 
   async mounted() {
     equipStore.subscribe()
@@ -65,6 +68,11 @@ export default class EquipmentList extends Vue {
 
   async fetchEquips() {
     await equipStore.fetchEquipsInfo()
+  }
+
+  async createRsvns(rsvnInfos: RsvnInfo[]) {
+    await this.rsvn.CreateRsvn(rsvnInfos)
+    .finally(() => this.showMultiEquipmentReservation = false)
   }
 }
 </script>

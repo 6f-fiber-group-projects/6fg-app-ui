@@ -40,7 +40,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, PropSync, Watch } from 'vue-property-decorator'
-import { CalendarEvent } from '../models/types'
+import { CalendarEvent, RsvnInfo } from '../models/types'
 import { isLoginUser, isAdmin, splitDatetime } from "@/plugins/utils"
 import { authStore, equipStore } from '../store'
 import ConfirmCard from "@/components/ConfirmCard.vue"
@@ -79,6 +79,9 @@ export default class ReservationCard extends Vue {
   @Prop({type: Number, default: null})
   equipId!: number
 
+  @Prop({type: Array, default: null})
+  preRsvns!: RsvnInfo[]
+
   @PropSync("loading", {type: Boolean, default: false})
   emiting!: boolean
 
@@ -88,6 +91,7 @@ export default class ReservationCard extends Vue {
 
   mounted() {
     this.dateValidater = this.$refs.dateForm
+    this.onDialogChange()
   }
 
   @Watch("event")
@@ -180,7 +184,7 @@ export default class ReservationCard extends Vue {
   }
 
   get canSelectEquip() {
-    return true
+    return this.equipId === null
   }
 
   get equips() {
@@ -238,7 +242,8 @@ export default class ReservationCard extends Vue {
           this.formatDate(this.dateInfos.start),
           this.formatDate(this.dateInfos.end),
           type,
-          this.event?.rsvnId
+          this.event?.rsvnId,
+          this.preRsvns
         )
       :[]
   }

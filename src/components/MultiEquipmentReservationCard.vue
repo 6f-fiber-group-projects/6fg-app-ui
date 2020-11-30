@@ -4,43 +4,50 @@
       v-toolbar.mb-3(color="primary" dark dense elevation=0)
         v-toolbar-title まとめて予約
       v-card-text
-        v-row(v-for="(r, idx) in rsvns")
-          v-col(cols=1)
-            v-btn(v-if="rsvns.length === idx+1" icon @click="add")
+        v-row
+          v-col(v-if="existRsvn" cols=12)
+            v-data-table(:headers="headers" :items="rsvns" item-key="name" hide-default-footer)
+              template(v-slot:item.equipId="{ item }") {{ equipIdToName(item.equipId) }}
+              template(v-slot:item.start="{ item }") {{ formatDate(item.start) }}
+              template(v-slot:item.end="{ item }") {{ formatDate(item.end) }}
+          v-col(cols=12)
+            v-btn.white--text(@click="add" dark color="blue-grey") 追加する
               v-icon(small) add
-          v-col(cols=11)
-            div {{r}}
       v-card-actions
         v-spacer
         v-btn(@click="cancel" depressed color="grey darken-2" dark) キャンセル
-        v-btn(@click="emit" depressed color="primary" dark) 予約
+        v-btn(@click="emit" depressed color="primary" dark :disabled="!existRsvn") 予約
 
     v-dialog(v-model="showRsvnDetail" persistent max-width="600px")
-      EquipmentReservationCard(:isNew="true" :loading.sync="emiting" :dialog="showRsvnDetail" :equipId="equipId"
+      EquipmentReservationCard(:isNew="true" :loading.sync="emiting" :dialog="showRsvnDetail" :preRsvns="rsvns"
           @close="showRsvnDetail=false" @created="added" @edited="edited" @deleted="deleted")
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component } from 'vue-property-decorator'
 import EquipmentReservationCard from "@/components/EquipmentReservationCard.vue"
 import Reservation from "@/plugins/reservation"
+import { RsvnInfo } from '../models/types'
+import {
+  userIdToName,
+  equipIdToName,
+  formatDate
+} from "@/plugins/utils"
 
 @Component({ components: { EquipmentReservationCard } })
 export default class MultiEquipmentReservationCard extends Vue {
-  private rsvns: any[] = []
+  private rsvn = new Reservation()
+  private rsvns: RsvnInfo[] = []
   private showRsvnDetail = false
   private emiting = false
-  private rsvn = new Reservation()
+  private headers = [
+    { text: "実験装置", value: "equipId", sortable: false, },
+    { text: "開始時刻", value: "start", sortable: false, },
+    { text: "終了時刻", value: "end", sortable: false, },
+  ]
 
-  @Prop({type: Number, default: null})
-  equipId!: number
-
-  created() {
-    this.initRsvns()
-  }
-
-  initRsvns() {
-    this.rsvns = ["dummy"]
+  get existRsvn() {
+    return this.rsvns.length !== 0
   }
 
   add() {
@@ -62,12 +69,23 @@ export default class MultiEquipmentReservationCard extends Vue {
   }
 
   emit() {
-    console.log("emit")
-    // this.rsvn.CreateRsvn()
+    this.$emit("emit", this.rsvns)
   }
 
   cancel() {
-    this.initRsvns()
+    this.$emit("cancel", this.rsvns)
+  }
+
+  userIdToName(userId: number) {
+    return userIdToName(userId)
+  }
+
+  equipIdToName(equipId: number) {
+    return equipIdToName(equipId)
+  }
+
+  formatDate(date: string) {
+    return formatDate(date)
   }
 }
 </script>

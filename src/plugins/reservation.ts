@@ -39,16 +39,22 @@ export default class Reservation {
     })
   }
 
-  BookRules(start: Date, end: Date, type: string, rsvnId?: number) {
+  BookRules(
+    start: Date,
+    end: Date,
+    type: string,
+    rsvnId?: number,
+    preRsvns?: RsvnInfo[]
+  ) {
     const rules: (() => boolean | string)[] = []
     if(type === "start") rules.push(
       () => this.validateStartDate(start) || "開始時刻が現在時刻より前です",
-      () => this.canBook(start, end, type, rsvnId) || "予約時刻が被っています"
+      () => this.canBook(start, end, type, rsvnId, preRsvns) || "予約時刻が被っています"
     )
     if(type === "end") rules.push(
       () => this.isAfter(end, new Date()) || "終了時刻が現在時刻より前です",
       () => this.validateEndDate(start, end) || "終了時刻が開始時刻より前です",
-      () => this.canBook(start, end, type, rsvnId) || "予約時刻が被っています"
+      () => this.canBook(start, end, type, rsvnId, preRsvns) || "予約時刻が被っています"
     ) 
     return rules
   }
@@ -101,10 +107,23 @@ export default class Reservation {
     }
   }
 
-  private canBook(start: Date, end: Date, type: string, rsvnId?: number) {
+  private canBook(
+    start: Date,
+    end: Date,
+    type: string,
+    rsvnId?: number,
+    preRsvns?: RsvnInfo[]
+  ) {
     const inputSt = start.getTime()
     const inputEd = end.getTime()
-    for(const r of this.GetReservations()) {
+    let rsvns = this.GetReservations()
+    if(preRsvns) {
+      rsvns = rsvns.concat(_.map(
+        preRsvns,
+        r => this.applyRsvnFormat(this.rsvnInfoToEquipmentRsvnInfo(r))
+      ))
+    }
+    for(const r of rsvns) {
       if(rsvnId === r.rsvnId) continue
       const st = r.start.getTime()
       const ed = r.end.getTime()
@@ -125,5 +144,16 @@ export default class Reservation {
 
   private validateEndDate(start: Date, end: Date) {
     return this.isAfter(end, start)
+  }
+
+  private rsvnInfoToEquipmentRsvnInfo(r: RsvnInfo): EquipmentRsvnInfo {
+    return {
+      id: 0,
+      status: 0,
+      equipId: r.equipId,
+      userId: authStore.getUserInfo?.id || 0,
+      start: r.start,
+      end: r.end
+    }
   }
 }
