@@ -14,7 +14,8 @@
         Calendar(:events="reservations" :equipId="equipId" @eventSelected="calendarEventHandler")
 
     v-dialog(v-model="showCalenderDetail" persistent max-width="600px")
-      EquipmentReservationCard(:event="selectedCalendarEvent" :isNew="isNewCalendarEvent" :loading.sync="emiting"
+      EquipmentReservationCard(:event="selectedCalendarEvent" :isNew="isNewCalendarEvent"
+          :loading.sync="emiting" :dialog="showCalenderDetail" :equipId="equipId"
           @close="showCalenderDetail=false" @created="createRsvn" @edited="updateRsvn" @deleted="deleteRsvn")
 
     v-dialog(v-model="showEquipDetail" max-width="600px")
@@ -23,9 +24,9 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { EquipmentInfo, EquipmentRsvnInfo } from '../models'
-import { EquipmentUpdate, CalendarEvent } from '../models/types'
-import { userStore, authStore, appStore, equipStore, equipReservationStore } from '../store'
+import { EquipmentInfo } from '../models'
+import { EquipmentUpdate, RsvnInfo } from '../models/types'
+import { authStore, appStore, equipStore, equipReservationStore } from '../store'
 import { isLoginUser, isAdmin } from "@/plugins/utils"
 import Calendar from "@/components/Calendar.vue"
 import EquipmentReservationCard from "@/components/EquipmentReservationCard.vue"
@@ -36,13 +37,6 @@ import _ from "lodash"
 import QRCode from "qrcode"
 
 const COLOR_CODE = ["success", "warning", "error"] //使用可能・予約中・使用中
-
-type RsvnInfo = {
-  id?: number;
-  userId?: number;
-  start: Date;
-  end: Date;
-}
 
 @Component({ components: {
   Calendar,
@@ -62,10 +56,10 @@ export default class Equipment extends Vue {
     appStore.onLoading()
 
     this.equipId = parseInt(this.$route.params.equipId)
-    await this.rsvn.Initialize(this.equipId)
 
     equipStore.subscribe()
     this.rsvn.Subscribe(this.equipId)
+    await this.rsvn.Initialize(this.equipId)
 
     appStore.offLoading()
   }
@@ -183,38 +177,21 @@ export default class Equipment extends Vue {
   }
 
   async createRsvn(rsvnInfo: RsvnInfo) {
-    if (!authStore.getUserInfo) return
-
-    await api.createRsvn([{
-      userId: authStore.getUserInfo.id,
-      equipId: this.equipId,
-      startDate: rsvnInfo.start,
-      endDate: rsvnInfo.end
-    }])
+    await this.rsvn.CreateRsvn([rsvnInfo])
     .finally(() => this.emiting = false)
-
     await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 
   async updateRsvn(rsvnInfo: RsvnInfo) {
-    if(!rsvnInfo.userId || !rsvnInfo.id) return
-
-    await api.updateRsvn({
-      id: rsvnInfo.id,
-      userId: rsvnInfo.userId,
-      equipId: this.equipId,
-      startDate: rsvnInfo.start,
-      endDate: rsvnInfo.end
-    })
+    await this.rsvn.UpdateRsvn(rsvnInfo)
     .finally(() => this.emiting = false)
-
     await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false
   }
 
-  async deleteRsvn(rsvnId: number) {
-    await api.deleteRsvn({id: rsvnId})
+  async deleteRsvn(rsvnInfo: RsvnInfo) {
+    await this.rsvn.DeleteRsvn(rsvnInfo)
     .finally(() => this.emiting = false)
     await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
     this.showCalenderDetail = false

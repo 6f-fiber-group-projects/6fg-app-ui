@@ -77,8 +77,8 @@ export default class Api {
     return await axios.put(`reservation/equipment/${params.id}`, params)
   }
 
-  static async deleteRsvn(params: {id: number}): Promise <any> {
-    if(!params.id) return Promise.reject()
-    return await axios.delete(`reservation/equipment/${params.id}`)
+  static async deleteRsvn(rsvnId: number): Promise <any> {
+    if(!rsvnId) return Promise.reject()
+    return await axios.delete(`reservation/equipment/${rsvnId}`)
   }
 }

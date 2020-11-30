@@ -61,3 +61,7 @@ export const splitDatetime = (dateTime: Date) => {
   const minute = dateTime.getMinutes().toString().padStart(2, "0")
   return {year, month, day, hour, minute}
 }
+
+export const sleep = (msec: number) => {
+  return new Promise(resolve => setTimeout(resolve, msec))
+}
