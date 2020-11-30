@@ -74,6 +74,13 @@ export type CalendarEvent = {
   name: string;
   start: Date;
   end: Date;
-  color: string;
   user: UserInfo;
+}
+
+export type RsvnInfo = {
+  id?: number;
+  userId?: number;
+  equipId: number;
+  start: Date;
+  end: Date;
 }

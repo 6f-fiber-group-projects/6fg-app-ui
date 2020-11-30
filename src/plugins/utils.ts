@@ -1,7 +1,8 @@
 import _ from "lodash"
 import {
   authStore,
-  userStore
+  userStore,
+  equipStore
 } from "@/store"
 
 export const capitalize = (str: string) => {
@@ -60,4 +61,21 @@ export const splitDatetime = (dateTime: Date) => {
   const hour   = dateTime.getHours().toString().padStart(2, "0")
   const minute = dateTime.getMinutes().toString().padStart(2, "0")
   return {year, month, day, hour, minute}
+}
+
+export const formatDate = (date: string) => {
+  const d = splitDatetime(new Date(date))
+  return `${d.year}年${d.month}月${d.day}日 ${d.hour}時${d.minute}分`
+}
+
+export const sleep = (msec: number) => {
+  return new Promise(resolve => setTimeout(resolve, msec))
+}
+
+export const userIdToName = (userId: number) => {
+  return userStore.getUserById(userId)?.name || null
+}
+
+export const equipIdToName = (equipId: number) => {
+  return equipStore.getEquipInfoById(equipId)?.name || null
 }

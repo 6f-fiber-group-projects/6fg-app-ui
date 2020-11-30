@@ -1,5 +1,5 @@
 <template lang="pug">
-  v-card.mx-5(:to="toEquipPage()")
+  v-card(:to="toEquipPage()")
     v-img(:src="imgSrc")
     v-card-title
       span {{ equipInfo.name }}

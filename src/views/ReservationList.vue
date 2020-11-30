@@ -20,7 +20,11 @@ import {
   equipReservationStore,
   appStore,
 } from "@/store/index"
-import { splitDatetime } from "@/plugins/utils"
+import {
+  userIdToName,
+  equipIdToName,
+  formatDate
+} from "@/plugins/utils"
 import api from "@/api"
 import _ from "lodash"
 
@@ -70,11 +74,11 @@ export default class ReservationList extends Vue {
   }
 
   userIdToName(userId: number) {
-    return userStore.getUserById(userId)?.name || null
+    return userIdToName(userId)
   }
 
   equipIdToName(equipId: number) {
-    return equipStore.getEquipInfoById(equipId)?.name || null
+    return equipIdToName(equipId)
   }
 
   color(n: number) {
@@ -82,8 +86,7 @@ export default class ReservationList extends Vue {
   }
 
   formatDate(date: string) {
-    const d = splitDatetime(new Date(date))
-    return `${d.year}年${d.month}月${d.day}日 ${d.hour}時${d.minute}分`
+    return formatDate(date)
   }
 }
 </script>
