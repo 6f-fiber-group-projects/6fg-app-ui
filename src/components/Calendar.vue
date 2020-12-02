@@ -25,8 +25,10 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
-import { CalendarEvent } from '../models/types'
+import { RsvnInfo } from '../models/types'
 import { capitalize } from "@/plugins/utils"
+import _ from "lodash"
+import { userStore } from '../store'
 
 @Component({})
 export default class Calendar extends Vue {
@@ -41,10 +43,17 @@ export default class Calendar extends Vue {
   private equipId!: number
 
   @Prop({type: Array, default: () => ([])})
-  private events!: CalendarEvent[]
+  private rsvns!: RsvnInfo[]
 
   mounted() {
     this.calendar = this.$refs.calendar 
+  }
+
+  get events () {
+    return _.map(this.rsvns, (r: any) => {
+      const name = userStore.getUserById(r.userId)?.name || "unknown"
+      return Object.assign(r, { name })
+    })
   }
 
   setToday () {
