@@ -71,9 +71,6 @@ export default class ReservationCard extends Vue {
   event!: CalendarEvent
 
   @Prop({type: Boolean, default: false})
-  isNew!: boolean
-
-  @Prop({type: Boolean, default: false})
   dialog!: boolean
 
   @Prop({type: Number, default: null})
@@ -101,7 +98,8 @@ export default class ReservationCard extends Vue {
 
   @Watch("dialog")
   onDialogChange(){
-    const selectedEquip = this.equips.filter(e => e.id === this.equipId)[0] || this.equips[0]
+    const equipId = this.equipId || this.event?.equipId
+    const selectedEquip = this.equips.filter(e => e.id === equipId)[0] || this.equips[0]
     if(selectedEquip) this.selectedEquip = selectedEquip
     if(selectedEquip && this.dialog) this.initRsvn(selectedEquip.id)
   }
@@ -109,6 +107,10 @@ export default class ReservationCard extends Vue {
   @Watch("selectedEquip")
   async onSelectedEquipChange(equip: EquipmentInfo){
     if(equip) await this.initRsvn(equip.id)
+  }
+
+  get isNew() {
+    return Object.keys(this.event).length === 0
   }
 
   get color() {
@@ -122,7 +124,7 @@ export default class ReservationCard extends Vue {
   }
 
   get canEdit() {
-    return isLoginUser(this.event?.user.id) || isAdmin()
+    return isLoginUser(this.event?.userId || 0) || isAdmin()
   }
 
   get showManageBtn() {
@@ -195,8 +197,8 @@ export default class ReservationCard extends Vue {
     return Object.assign(
       _.mapValues(this.dateInfos, this.formatDate),
       {
-        id: this.event?.rsvnId,
-        userId: this.event.user?.id,
+        id: this.event?.id,
+        userId: this.event?.userId,
         equipId: this.selectedEquip?.id
       }
     )
@@ -242,7 +244,7 @@ export default class ReservationCard extends Vue {
           this.formatDate(this.dateInfos.start),
           this.formatDate(this.dateInfos.end),
           type,
-          this.event?.rsvnId,
+          this.event?.id,
           this.preRsvns
         )
       :[]

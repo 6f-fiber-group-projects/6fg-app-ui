@@ -11,11 +11,10 @@
         v-btn.mr-3(@click="changeStatus" rounded :color="useBtnColor" :loading="changingStatus" :disabled="!canChangeStatus") {{ useBtnText }}
         v-btn.mr-3(@click="generateEquipQR" rounded color="blue-grey" dark) QRコード表示
       v-col(cols=12)
-        Calendar(:events="reservations" :equipId="equipId" @eventSelected="calendarEventHandler")
+        Calendar(:rsvns="reservations" :equipId="equipId" @eventSelected="calendarEventHandler")
 
     v-dialog(v-model="showCalenderDetail" persistent max-width="600px")
-      EquipmentReservationCard(:event="selectedCalendarEvent" :isNew="isNewCalendarEvent"
-          :loading.sync="emiting" :dialog="showCalenderDetail" :equipId="equipId"
+      EquipmentReservationCard(:event="selectedCalendarEvent" :loading.sync="emiting" :dialog="showCalenderDetail" :equipId="equipId"
           @close="showCalenderDetail=false" @created="createRsvn" @edited="updateRsvn" @deleted="deleteRsvn")
 
     v-dialog(v-model="showEquipDetail" max-width="600px")
@@ -102,10 +101,6 @@ export default class Equipment extends Vue {
     return this.selectedCalendarEventInfo?.event || {}
   }
 
-  get isNewCalendarEvent() {
-    return !this.selectedCalendarEventInfo?.event || false
-  }
-
   get canChangeStatus() {
     return this.equip?.status === 0 ? this.canStart : this.canStop
   }
@@ -113,7 +108,7 @@ export default class Equipment extends Vue {
   get canStart() {
     const rsvn = this.rsvn.CurrentReservation()
     if(!rsvn) return true
-    if(rsvn.user.id === authStore.getUserInfo?.id) return true
+    if(rsvn.userId === authStore.getUserInfo?.id) return true
     return false
   }
 

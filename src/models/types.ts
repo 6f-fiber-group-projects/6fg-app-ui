@@ -69,14 +69,6 @@ export type EquipmentReservationUpdate = {
   endDate: Date
 }
 
-export type CalendarEvent = {
-  rsvnId: number;
-  name: string;
-  start: Date;
-  end: Date;
-  user: UserInfo;
-}
-
 export type RsvnInfo = {
   id?: number;
   userId?: number;
@@ -84,3 +76,5 @@ export type RsvnInfo = {
   start: Date;
   end: Date;
 }
+
+export type CalendarEvent = RsvnInfo & { name: string }

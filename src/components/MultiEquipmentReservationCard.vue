@@ -11,7 +11,7 @@
               template(v-slot:item.start="{ item }") {{ formatDate(item.start) }}
               template(v-slot:item.end="{ item }") {{ formatDate(item.end) }}
               template(v-slot:item.actions="{ item }")
-                v-icon.mr-2(@click="edit(item.id)") mdi-pencil
+                v-icon.mr-2(@click="edit(item)") mdi-pencil
                 v-icon(@click="remove(item.preRsvnId)") mdi-delete
           v-col(cols=12)
             v-btn.white--text(@click="add" dark color="blue-grey") 追加する
@@ -22,7 +22,7 @@
         v-btn(@click="emit" depressed color="primary" :dark="existRsvn" :disabled="!existRsvn") 予約
 
     v-dialog(v-model="showRsvnDetail" persistent max-width="600px")
-      EquipmentReservationCard(:isNew="true" :loading.sync="emiting" :dialog="showRsvnDetail" :preRsvns="rsvns"
+      EquipmentReservationCard(:event="selectedEvent" :loading.sync="emiting" :dialog="showRsvnDetail" :preRsvns="rsvns"
           @close="showRsvnDetail=false" @created="added" @edited="edited" @deleted="deleted")
 </template>
 
@@ -53,6 +53,8 @@ export default class MultiEquipmentReservationCard extends Vue {
     { text: "終了時刻", value: "end", sortable: false, },
     { text: "編集", value: "actions", sortable: false, },
   ]
+  private selectedEvent = {}
+  private editingPreRsvnId = ""
 
   get existRsvn() {
     return this.rsvns.length !== 0
@@ -70,6 +72,12 @@ export default class MultiEquipmentReservationCard extends Vue {
     this.showRsvnDetail = true
   }
 
+  edit(e: PreRsvnInfo) {
+    this.selectedEvent = e
+    this.editingPreRsvnId = e.preRsvnId
+    this.showRsvnDetail = true
+  }
+
   remove(preRsvnId: string) {
     this.preRsvns = _.filter(this.preRsvns, r => r.preRsvnId !== preRsvnId)
   }
@@ -77,26 +85,42 @@ export default class MultiEquipmentReservationCard extends Vue {
   added(r: any) {
     r.preRsvnId = uuidv4()
     this.preRsvns.unshift(r)
-    this.showRsvnDetail = false
-    this.emiting = false
+    this.close()
   }
 
-  edited() {
-    console.log("edited")
+  edited(item: any) {
+    this.remove(this.editingPreRsvnId)
+    this.added(item)
+    this.close()
+    this.initEditInfo()
   }
 
   deleted() {
-    console.log("deleted")
+    this.remove(this.editingPreRsvnId)
+    this.close()
+    this.initEditInfo()
   }
 
   emit() {
     this.$emit("emit", this.rsvns)
     this.preRsvns = []
+    this.close()
   }
 
   cancel() {
     this.$emit("cancel", this.rsvns)
     this.preRsvns = []
+    this.close()
+  }
+
+  close() {
+    this.showRsvnDetail = false
+    this.emiting = false
+  }
+
+  initEditInfo() {
+    this.selectedEvent = {}
+    this.editingPreRsvnId = ""
   }
 
   userIdToName(userId: number) {

@@ -94,14 +94,13 @@ export default class Reservation {
     await api.deleteRsvn(rsvnInfo.id)
   }
 
-  private applyRsvnFormat(r: EquipmentRsvnInfo) {
-    const user = userStore.getUserById(r.userId)
+  private applyRsvnFormat(r: EquipmentRsvnInfo): RsvnInfo {
     const start = new Date(r.start)
     const end = new Date(r.end)
     return {
-      rsvnId: r.id,
-      name: user.name,
-      user,
+      id: r.id,
+      userId: r.userId,
+      equipId: r.equipId,
       start,
       end
     }
@@ -124,7 +123,7 @@ export default class Reservation {
       ))
     }
     for(const r of rsvns) {
-      if(rsvnId === r.rsvnId) continue
+      if(rsvnId === r.id) continue
       const st = r.start.getTime()
       const ed = r.end.getTime()
       if(type === "start" && (st < inputSt && inputSt < ed)) return false 
