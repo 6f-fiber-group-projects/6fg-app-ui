@@ -10,7 +10,7 @@
           v-icon(small) delete
       v-card-text
         v-form(ref="dateForm")
-          v-select(v-model="selectedEquip" :items="equips" :disabled="!canSelectEquip"
+          v-autocomplete(v-model="selectedEquip" :items="equips" :disabled="!canSelectEquip"
               return-object item-text="name" label="実験装置" :rules="rulesHandler('equip')")
           v-row(v-for="(item, key, idx) in dateInfos" :key="idx")
             v-col.py-0(cols=12) {{ item.label }}
