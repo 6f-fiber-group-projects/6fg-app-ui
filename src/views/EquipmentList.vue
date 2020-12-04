@@ -5,8 +5,6 @@
         v-btn.my-5(rounded color="primary" dark @click="showEquipDetail=true") 新規登録
       v-col(cols=12)
         v-text-field(v-model="searchWords" @click:clear="searchWords=''" placeholder="実験装置を検索" clearable prepend-inner-icon="search")
-      div {{searchWords}}
-      div {{filteredEquips}}
       v-col(v-for="e in filteredEquips" :key="e.id" cols=12 sm=2)
         EquipmentCard(:equipInfo="e" @editted="equipStore.fetchEquipsInfo()")
     v-btn(fixed right bottom fab dark color="primary" @click="showMultiEquipmentReservation=true")
