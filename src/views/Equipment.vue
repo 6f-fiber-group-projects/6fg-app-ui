@@ -26,7 +26,6 @@ import { Vue, Component } from 'vue-property-decorator'
 import { EquipmentInfo } from '../models'
 import { EquipmentUpdate, RsvnInfo } from '../models/types'
 import { authStore, appStore, equipStore } from '../store'
-import { isLoginUser, isAdmin } from "@/plugins/utils"
 import Calendar from "@/components/Calendar.vue"
 import EquipmentReservationCard from "@/components/EquipmentReservationCard.vue"
 import EquipmentDetailCard from "@/components/EquipmentDetailCard.vue"
@@ -106,15 +105,11 @@ export default class Equipment extends Vue {
   }
 
   get canStart() {
-    const rsvn = this.Rsvn.CurrentReservation()
-    if(!rsvn) return true
-    if(rsvn.userId === authStore.getUserInfo?.id) return true
-    return false
+    return this.Rsvn.CanStart()
   }
 
   get canStop() {
-    if(!this.equip) return false
-    return this.equip && (isLoginUser(this.equip.userId) || isAdmin())
+    return this.Rsvn.CanStop(this.equipId)
   }
 
   get equip(): EquipmentInfo {
