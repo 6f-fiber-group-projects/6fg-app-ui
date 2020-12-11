@@ -29,7 +29,6 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import EquipmentReservationCard from "@/components/EquipmentReservationCard.vue"
-import Reservation from "@/plugins/reservation"
 import { RsvnInfo } from '../models/types'
 import {
   userIdToName,
@@ -43,7 +42,6 @@ type PreRsvnInfo = RsvnInfo & { preRsvnId: string }
 
 @Component({ components: { EquipmentReservationCard } })
 export default class MultiEquipmentReservationCard extends Vue {
-  private rsvn = new Reservation()
   private preRsvns: PreRsvnInfo[] = []
   private showRsvnDetail = false
   private emiting = false

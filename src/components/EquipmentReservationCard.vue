@@ -65,7 +65,7 @@ export default class ReservationCard extends Vue {
   private confirm = {title: "", text: ""}
   private dateValidater: any = null
   private selectedEquip: any = null
-  private rsvn = new Reservation()
+  private Rsvn = new Reservation()
 
   @Prop({type: Object, default: () => ({})})
   event!: CalendarEvent
@@ -154,7 +154,7 @@ export default class ReservationCard extends Vue {
 
   get canManage() {
     if(!this.dateInfos.end) return false
-    return this.rsvn.CanManageBook(this.formatDate(this.dateInfos.end))
+    return this.Rsvn.CanManageBook(this.formatDate(this.dateInfos.end))
   }
 
   get needRules() {
@@ -205,7 +205,7 @@ export default class ReservationCard extends Vue {
   }
 
   async initRsvn(equipId: number) {
-    await this.rsvn.Initialize(equipId)
+    await this.Rsvn.Initialize(equipId)
   }
 
   initDateInfo() {
@@ -240,7 +240,7 @@ export default class ReservationCard extends Vue {
 
   bookRules(type: string) {
     return this.dateInfos.start && this.dateInfos.end
-      ? this.rsvn.BookRules(
+      ? this.Rsvn.BookRules(
           this.formatDate(this.dateInfos.start),
           this.formatDate(this.dateInfos.end),
           type,

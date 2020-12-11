@@ -9,9 +9,14 @@ import { RsvnInfo } from "@/models/types"
 import api from "@/api"
 
 export default class Reservation {
-  async Initialize(equipId: number) {
+  async Initialize(equipId?: number) {
     await userStore.fetchUsers()
-    await equipReservationStore.fetchEquipRsvnsInfo(equipId)
+    await this.FetchReservations(equipId)
+  }
+
+  async FetchReservations(equipId?: number) {
+    if(equipId) await equipReservationStore.fetchEquipRsvnsInfo(equipId)
+    await equipReservationStore.fetchAllEquipRsvnsInfo()
   }
 
   GetReservations() {

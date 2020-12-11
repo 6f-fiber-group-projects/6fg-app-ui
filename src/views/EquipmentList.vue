@@ -37,7 +37,7 @@ import Reservation from '../plugins/reservation'
 export default class EquipmentList extends Vue {
   private showEquipDetail = false
   private showMultiEquipmentReservation = false
-  private rsvn = new Reservation()
+  private Rsvn = new Reservation()
   private searchWords = ""
 
   async mounted() {
@@ -80,7 +80,7 @@ export default class EquipmentList extends Vue {
   }
 
   async createRsvns(rsvnInfos: RsvnInfo[]) {
-    await this.rsvn.CreateRsvn(rsvnInfos)
+    await this.Rsvn.CreateRsvn(rsvnInfos)
     .finally(() => this.showMultiEquipmentReservation = false)
   }
 }

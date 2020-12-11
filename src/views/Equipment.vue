@@ -25,7 +25,7 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { EquipmentInfo } from '../models'
 import { EquipmentUpdate, RsvnInfo } from '../models/types'
-import { authStore, appStore, equipStore, equipReservationStore } from '../store'
+import { authStore, appStore, equipStore } from '../store'
 import { isLoginUser, isAdmin } from "@/plugins/utils"
 import Calendar from "@/components/Calendar.vue"
 import EquipmentReservationCard from "@/components/EquipmentReservationCard.vue"
@@ -49,7 +49,7 @@ export default class Equipment extends Vue {
   private selectedCalendarEventInfo: any = {}
   private changingStatus = false
   private emiting = false
-  private rsvn = new Reservation()
+  private Rsvn = new Reservation()
 
   async mounted() {
     appStore.onLoading()
@@ -57,15 +57,15 @@ export default class Equipment extends Vue {
     this.equipId = parseInt(this.$route.params.equipId)
 
     equipStore.subscribe()
-    this.rsvn.Subscribe(this.equipId)
-    await this.rsvn.Initialize(this.equipId)
+    this.Rsvn.Subscribe(this.equipId)
+    await this.Rsvn.Initialize(this.equipId)
 
     appStore.offLoading()
   }
 
   beforeDestroy() {
     equipStore.unsubscribe()
-    this.rsvn.Unsubscribe(this.equipId)
+    this.Rsvn.Unsubscribe(this.equipId)
   }
 
   get status() {
@@ -106,7 +106,7 @@ export default class Equipment extends Vue {
   }
 
   get canStart() {
-    const rsvn = this.rsvn.CurrentReservation()
+    const rsvn = this.Rsvn.CurrentReservation()
     if(!rsvn) return true
     if(rsvn.userId === authStore.getUserInfo?.id) return true
     return false
@@ -122,7 +122,7 @@ export default class Equipment extends Vue {
   }
 
   get reservations() {
-    return this.rsvn.GetReservations()
+    return this.Rsvn.GetReservations()
   }
 
   book() {
@@ -172,23 +172,23 @@ export default class Equipment extends Vue {
   }
 
   async createRsvn(rsvnInfo: RsvnInfo) {
-    await this.rsvn.CreateRsvn([rsvnInfo])
+    await this.Rsvn.CreateRsvn([rsvnInfo])
     .finally(() => this.emiting = false)
-    await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
+    await this.Rsvn.FetchReservations(this.equipId)
     this.showCalenderDetail = false
   }
 
   async updateRsvn(rsvnInfo: RsvnInfo) {
-    await this.rsvn.UpdateRsvn(rsvnInfo)
+    await this.Rsvn.UpdateRsvn(rsvnInfo)
     .finally(() => this.emiting = false)
-    await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
+    await this.Rsvn.FetchReservations(this.equipId)
     this.showCalenderDetail = false
   }
 
   async deleteRsvn(rsvnInfo: RsvnInfo) {
-    await this.rsvn.DeleteRsvn(rsvnInfo)
+    await this.Rsvn.DeleteRsvn(rsvnInfo)
     .finally(() => this.emiting = false)
-    await equipReservationStore.fetchEquipRsvnsInfo(this.equipId)
+    await this.Rsvn.FetchReservations(this.equipId)
     this.showCalenderDetail = false
   }
 
