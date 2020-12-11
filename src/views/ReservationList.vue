@@ -17,7 +17,6 @@ import { Vue, Component } from 'vue-property-decorator'
 import { 
   userStore,
   equipStore,
-  equipReservationStore,
   appStore,
 } from "@/store/index"
 import {
@@ -25,6 +24,7 @@ import {
   equipIdToName,
   formatDate
 } from "@/plugins/utils"
+import Reservation from "@/plugins/reservation"
 import api from "@/api"
 import _ from "lodash"
 
@@ -39,21 +39,22 @@ export default class ReservationList extends Vue {
   ]
   private selectTags = ["予約状況", "予約履歴"]
   private selectedTag = 0
+  private Rsvn = new Reservation()
 
   async mounted() {
     appStore.onLoading()
 
-    equipReservationStore.subscribeAll()
+    this.Rsvn.Subscribe()
+    await this.Rsvn.Initialize()
 
     await userStore.fetchUsers()
     await equipStore.fetchEquipsInfo()
-    await equipReservationStore.fetchAllEquipRsvnsInfo()
 
     appStore.offLoading()
   }
 
   destroyed() {
-    equipReservationStore.unsubscribeAll()
+    this.Rsvn.Unsubscribe()
   }
 
   get selectedRsvns() {
@@ -62,7 +63,7 @@ export default class ReservationList extends Vue {
   }
 
   get rsvns() {
-    return equipReservationStore.getEquipRsvnsInfo
+    return this.Rsvn.GetReservations()
   }
 
   get rsvnsBeforeNow() {

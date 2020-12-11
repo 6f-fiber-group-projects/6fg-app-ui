@@ -2,16 +2,23 @@ import _ from "lodash"
 import {
   authStore,
   userStore,
+  equipStore,
   equipReservationStore
 } from "@/store"
 import { EquipmentRsvnInfo } from "@/models/index"
 import { RsvnInfo } from "@/models/types"
 import api from "@/api"
+import { isLoginUser, isAdmin } from "@/plugins/utils"
 
 export default class Reservation {
-  async Initialize(equipId: number) {
+  async Initialize(equipId?: number) {
     await userStore.fetchUsers()
-    await equipReservationStore.fetchEquipRsvnsInfo(equipId)
+    await this.FetchReservations(equipId)
+  }
+
+  async FetchReservations(equipId?: number) {
+    if(equipId) await equipReservationStore.fetchEquipRsvnsInfo(equipId)
+    await equipReservationStore.fetchAllEquipRsvnsInfo()
   }
 
   GetReservations() {
@@ -61,6 +68,20 @@ export default class Reservation {
 
   CanManageBook(end: Date) {
     return end.getTime() + 60*60*24*1000 > new Date().getTime() // Fix me
+  }
+
+  // to equip.ts equipStore
+  CanStart() {
+    const rsvn = this.CurrentReservation()
+    if(!rsvn) return true
+    if(rsvn.userId === authStore.getUserInfo?.id) return true
+    return false
+  }
+
+  // to equip.ts equipStore
+  CanStop(equipId: number) {
+    const equip = equipStore.currentEquipInfo(equipId) 
+    return equip && isLoginUser(equip.userId) || isAdmin()
   }
 
   async CreateRsvn(rsvnInfos: RsvnInfo[]) {
