@@ -63,7 +63,7 @@ export default class ReservationList extends Vue {
   }
 
   get rsvns() {
-    return this.Rsvn.GetReservations()
+    return this.Rsvn.GetAllReservations()
   }
 
   get rsvnsBeforeNow() {
