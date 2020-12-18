@@ -28,6 +28,13 @@ export default class Reservation {
     )
   }
 
+  GetAllReservations() {
+    return _.map(
+      equipReservationStore.getEquipRsvnsInfo,
+      r => this.applyRsvnFormat(r)
+    )
+  }
+
   Subscribe(equipId?: number) {
     if(equipId) equipReservationStore.subscribe(equipId)
     equipReservationStore.subscribeAll
